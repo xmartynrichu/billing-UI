@@ -1,0 +1,119 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
+import { MasterService } from '../service/master.service';
+import { NotificationService } from '../common/common.service';
+
+@Component({
+  selector: 'app-expense-label-master',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatTableModule,
+    MatIconModule,
+    MatCardModule,
+    MatSnackBarModule,
+    MatTooltipModule
+  ],
+  templateUrl: './expense-label-master.html',
+  styleUrls: ['./expense-label-master.css'],
+})
+export class ExpenseLabelMaster implements OnInit {
+
+  labelForm: FormGroup;
+  dataSource = new MatTableDataSource<any>();
+  displayedColumns = ['id','label_name','amount','createdby','actions'];
+  editingId: number | null = null;
+
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly masterservice: MasterService,
+    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService
+  ) {
+    this.labelForm = this.fb.group({
+      label_name: ['', Validators.required],
+      amount: ['', Validators.required]
+    });
+  }
+
+  ngOnInit(): void {
+    this.getlabelmasterlist();
+  }
+
+  addLabel() {
+    const body = {
+      label_name: this.labelForm.value.label_name,
+      amount: this.labelForm.value.amount,
+      entryby: 'admin'
+    };
+
+    this.masterservice.insertlabeldetails(body).subscribe({
+      next: (res: any) => {
+        this.snackBar.open('Saved successfully', 'OK', { duration: 2000 });
+        this.getlabelmasterlist();
+        this.labelForm.reset();
+      },
+      error: (err: any) => {
+        console.error(err);
+        this.snackBar.open('Save failed', 'OK', { duration: 2000 });
+      }
+    });
+  }
+
+  editLabel(label: any) {
+    this.editingId = label.id;
+    this.labelForm.patchValue({
+      label_name: label.label_name,
+      amount: label.amt
+    });
+  }
+
+  deleteLabel(id: number) {
+    this.notificationService.showConfirmation(
+      'Delete Label?',
+      'This expense label will be permanently deleted.'
+    ).then((confirmed) => {
+      if (!confirmed) return;
+
+      this.masterservice.deletelabelmaster(id).subscribe({
+        next: () => {
+          this.snackBar.open('Deleted successfully', 'OK', { duration: 2000 });
+          this.getlabelmasterlist();
+        },
+        error: (err: any) => {
+          console.error(err);
+          this.snackBar.open('Delete failed', 'OK', { duration: 2000 });
+        }
+      });
+    });
+  }
+
+  getlabelmasterlist() {
+    this.masterservice.getlabelmasterdetails().subscribe({
+      next: (data: any) => {
+        this.dataSource.data = data;
+        console.log(this.dataSource.data);
+      }
+    });
+  }
+
+  cancelEdit() {
+    this.editingId = null;
+    this.labelForm.reset();
+  }
+}

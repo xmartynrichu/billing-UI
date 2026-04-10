@@ -1,0 +1,20 @@
+/**
+ * Production Environment Configuration
+ */
+
+export const environment = {
+  production: true,
+   apiBaseUrl: 'https://billing-api-zjgn.onrender.com',
+  apiTimeout: 30000,
+  appName: 'Billing System',
+  appVersion: '1.0.0',
+  features: {
+    enableLogging: false,
+    enableAnalytics: true,
+    enableOfflineMode: false
+  },
+  pagination: {
+    defaultPageSize: 10,
+    pageSizeOptions: [5, 10, 25, 50, 100]
+  }
+};

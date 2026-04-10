@@ -1,0 +1,57 @@
+<div class="profit-container">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading-spinner">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading profit report...</p>
+  </div>
+
+  <!-- Profit Table Card -->
+  <mat-card class="table-card" *ngIf="!loading && dataLoaded">
+    <mat-card-header>
+      <mat-card-title>📈 Profit Report</mat-card-title>
+    </mat-card-header>
+
+    <div class="mat-elevation-z8">
+      <table mat-table [dataSource]="reportData" class="full-width-table">
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let profit">{{ profit.date | date:'dd-MMM-yyyy'}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="revenue">
+          <th mat-header-cell *matHeaderCellDef>Revenue</th>
+          <td mat-cell *matCellDef="let profit">₹{{ profit.revenue | number:'1.0-0'}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="expense">
+          <th mat-header-cell *matHeaderCellDef>Expense</th>
+          <td mat-cell *matCellDef="let profit">₹{{ profit.expense | number:'1.0-0'}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="profit">
+          <th mat-header-cell *matHeaderCellDef>Profit</th>
+          <td mat-cell *matCellDef="let profit">
+            <span [style.color]="profit.profit >= 0 ? '#4caf50' : '#f44336'">
+              ₹{{ profit.profit | number:'1.0-0'}}
+            </span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+  </mat-card>
+
+  <!-- No Data Message -->
+  <mat-card class="table-card" *ngIf="!loading && !dataLoaded">
+    <mat-card-header>
+      <mat-card-title>📈 Profit Report</mat-card-title>
+    </mat-card-header>
+    <div class="no-data">
+      <mat-icon style="font-size: 48px; color: #999; margin-bottom: 16px;">info</mat-icon>
+      <p>No profit data found.</p>
+    </div>
+  </mat-card>
+</div>

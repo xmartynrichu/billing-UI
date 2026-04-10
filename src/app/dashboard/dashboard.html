@@ -1,0 +1,57 @@
+<div class="dashboard-container" *ngIf="!loading; else loadingTpl">
+  <!-- Summary Counts Section -->
+  <div class="summary-section">
+    <h2 class="section-title">📋 Dashboard Summary</h2>
+    
+    <div class="dashboard-grid">
+      <mat-card class="dashboard-card" (click)="navigate('employee')">
+        <mat-card-title>Total Employees</mat-card-title>
+        <mat-card-content>
+          <h2>{{ dashboardCounts.employees }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="dashboard-card" (click)="navigate('expense')">
+        <mat-card-title>Total Expenses</mat-card-title>
+        <mat-card-content>
+          <h2>{{ dashboardCounts.expenses | currency:'INR':'symbol':'1.0-0' }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="dashboard-card" (click)="navigate('fishitem')">
+        <mat-card-title>Total Fish</mat-card-title>
+        <mat-card-content>
+          <h2>{{ dashboardCounts.fish }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="dashboard-card" (click)="navigate('expenselabel')">
+        <mat-card-title>Total Labels</mat-card-title>
+        <mat-card-content>
+          <h2>{{ dashboardCounts.labels }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="dashboard-card" (click)="navigate('revenue')">
+        <mat-card-title>Total Revenue</mat-card-title>
+        <mat-card-content>
+          <h2>{{ dashboardCounts.revenue | currency:'INR':'symbol':'1.0-0' }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="dashboard-card" (click)="navigate('user')">
+        <mat-card-title>Total Users</mat-card-title>
+        <mat-card-content>
+          <h2>{{ dashboardCounts.users }}</h2>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading dashboard...</p>
+  </div>
+</ng-template>

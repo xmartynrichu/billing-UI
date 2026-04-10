@@ -1,0 +1,126 @@
+.login-wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(
+      rgba(0, 60, 90, 0.75),
+      rgba(0, 60, 90, 0.75)
+    ),
+    url('/assets/harbour-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  padding: 20px; /* prevents overflow on very small screens */
+  box-sizing: border-box;
+}
+
+.login-box {
+  width: 420px;
+  max-width: 100%; /* ensures it never exceeds screen width */
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+  padding: 30px 35px;
+  box-sizing: border-box;
+}
+
+.logo-section {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.logo-section img {
+  width: 70px;
+  margin-bottom: 10px;
+}
+
+.logo-section h2 {
+  font-size: 20px;
+  color: #0b3c5d;
+  margin-bottom: 3px;
+}
+
+.logo-section p {
+  font-size: 13px;
+  color: #6b8aa3;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 14px;
+  color: #0b3c5d;
+  margin-bottom: 5px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #b7c9d6;
+  font-size: 14px;
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: #0b3c5d;
+}
+
+.login-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 11px;
+  background: #0b3c5d;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  background: #08304a;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 12px;
+  color: #8fa5b5;
+}
+
+/* ===========================
+   MOBILE / SMALL SCREENS
+=========================== */
+@media (max-width: 480px) {
+  .login-box {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .logo-section h2 {
+    font-size: 18px;
+  }
+
+  .logo-section p {
+    font-size: 12px;
+  }
+
+  .input-group input {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .login-btn {
+    padding: 10px;
+    font-size: 15px;
+  }
+
+  .logo-section img {
+    width: 60px;
+  }
+}

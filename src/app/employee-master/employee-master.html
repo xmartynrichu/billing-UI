@@ -1,0 +1,137 @@
+<div class="employee-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>👔 Employee Master</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="employeeForm" (ngSubmit)="addEmployee()" class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Employee Name</mat-label>
+          <input matInput formControlName="employeename" placeholder="Enter employee name">
+          <mat-icon matPrefix>person</mat-icon>
+          <mat-error *ngIf="employeeForm.get('employeename')?.hasError('required')">Employee Name is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Designation</mat-label>
+          <input matInput formControlName="designation" placeholder="Enter designation">
+          <mat-icon matPrefix>badge</mat-icon>
+          <mat-error *ngIf="employeeForm.get('designation')?.hasError('required')">Designation is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Salary</mat-label>
+          <input matInput type="number" formControlName="salary" placeholder="Enter salary">
+          <mat-icon matPrefix>currency_rupee</mat-icon>
+          <mat-error *ngIf="employeeForm.get('salary')?.hasError('required')">Salary is required</mat-error>
+          <mat-error *ngIf="employeeForm.get('salary')?.hasError('min')">Salary must be positive</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Date of Birth</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="dob">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-icon matPrefix>cake</mat-icon>
+          <mat-error *ngIf="employeeForm.get('dob')?.hasError('required')">DOB is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mobile Number</mat-label>
+          <input matInput formControlName="mobilenumber" maxlength="10" placeholder="10-digit mobile">
+          <mat-icon matPrefix>phone</mat-icon>
+          <mat-error *ngIf="employeeForm.get('mobilenumber')?.hasError('required')">Mobile number is required</mat-error>
+          <mat-error *ngIf="employeeForm.get('mobilenumber')?.hasError('pattern')">Enter a 10-digit number</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Location</mat-label>
+          <input matInput formControlName="location" placeholder="Enter location">
+          <mat-icon matPrefix>location_on</mat-icon>
+          <mat-error *ngIf="employeeForm.get('location')?.hasError('required')">Location is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" placeholder="Enter email address">
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error *ngIf="employeeForm.get('email')?.hasError('required')">Email is required</mat-error>
+          <mat-error *ngIf="employeeForm.get('email')?.hasError('email')">Enter a valid email</mat-error>
+        </mat-form-field>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions align="end" class="button-group">
+      <button mat-raised-button color="primary" type="submit" [disabled]="employeeForm.invalid" (click)="addEmployee()" matTooltip="Add/Update employee">
+        <mat-icon>{{ editingEmployeeId !== null ? 'update' : 'add_circle' }}</mat-icon>
+        {{ editingEmployeeId !== null ? 'Update Employee' : 'Add Employee' }}
+      </button>
+      <button mat-raised-button color="accent" type="button" (click)="cancelEdit()" *ngIf="editingEmployeeId !== null" matTooltip="Cancel edit">
+        <mat-icon>close</mat-icon>
+        Cancel
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card class="table-card">
+    <mat-card-header>
+      <mat-card-title>📋 Employee List</mat-card-title>
+    </mat-card-header>
+
+    <div class="mat-elevation-z8">
+      <table mat-table [dataSource]="employees" class="full-width-table">
+        
+        <ng-container matColumnDef="employeename">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let emp">{{ emp.emp_name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="designation">
+          <th mat-header-cell *matHeaderCellDef>Designation</th>
+          <td mat-cell *matCellDef="let emp">{{ emp.emp_designation }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="salary">
+          <th mat-header-cell *matHeaderCellDef>Salary</th>
+          <td mat-cell *matCellDef="let emp">₹{{ emp.emp_salary | number:'1.0-0' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="dob">
+          <th mat-header-cell *matHeaderCellDef>DOB</th>
+          <td mat-cell *matCellDef="let emp">{{ emp.emp_dob | date:'dd-MMM-yyyy' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="mobilenumber">
+          <th mat-header-cell *matHeaderCellDef>Mobile</th>
+          <td mat-cell *matCellDef="let emp">{{ emp.emp_mobile }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="location">
+          <th mat-header-cell *matHeaderCellDef>Location</th>
+          <td mat-cell *matCellDef="let emp">{{ emp.emp_location }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let emp">{{ emp.emp_email }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let emp" class="action-cell">
+            <button mat-icon-button color="primary" (click)="editEmployee(emp)" matTooltip="Edit employee">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteEmployee(emp.id)" matTooltip="Delete employee">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  </mat-card>
+</div>

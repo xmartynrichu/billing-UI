@@ -1,0 +1,38 @@
+<div class="login-wrapper">
+  <div class="login-box">
+    <div class="logo-section">
+  <img src="./../../assets/img/harbour-logo.png" alt="Fishing Harbour" />
+
+      <h2>Fishing Harbour Billing System</h2>
+      <p>Authority Login</p>
+    </div>
+
+    <form (ngSubmit)="login()">
+      <div class="input-group">
+        <label>Username</label>
+        <input
+          type="text"
+          placeholder="Enter username"
+          name="username"   [(ngModel)]="username"
+          required
+        />
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input
+          type="password"
+          placeholder="Enter password"
+          name="password"   [(ngModel)]="password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="login-btn" >Login</button>
+    </form>
+
+    <div class="footer">
+      <span>© 2026 Fishing Harbour Authority</span>
+    </div>
+  </div>
+</div>
