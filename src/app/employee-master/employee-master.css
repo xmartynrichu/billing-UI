@@ -1,15 +1,20 @@
 /* Page Container */
 .employee-container {
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
+  padding: 8px;
+  max-width: 100%;
+  margin: 0;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   min-height: 100vh;
 }
 
+.employee-container mat-card {
+  margin: 4px 0 !important;
+  border-radius: 8px !important;
+}
+
 /* Form Card */
 .form-card {
-  margin-bottom: 32px;
+  margin-bottom: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
@@ -17,22 +22,26 @@
 .form-card mat-card-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 20px 24px !important;
+  padding: 8px 10px !important;
 }
 
 .form-card mat-card-header mat-card-title {
   color: white;
   margin: 0;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 500;
+}
+
+.form-card mat-card-content {
+  padding: 6px 10px !important;
 }
 
 /* Form Grid */
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
-  padding: 20px 0;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 6px;
+  padding: 0;
 }
 
 .full-width {
@@ -46,35 +55,57 @@ mat-form-field mat-icon[matPrefix] {
 
 /* Button Group */
 .button-group {
-  padding: 16px 0 !important;
-  gap: 12px;
+  padding: 4px 0 !important;
+  gap: 6px;
 }
 
 .button-group button {
   text-transform: uppercase;
   font-weight: 500;
-  padding: 8px 24px;
-  gap: 8px;
+  padding: 5px 14px;
+  gap: 4px;
+  font-size: 11px;
 }
 
 /* Table Card */
 .table-card {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  border-radius: 8px !important;
+  overflow: hidden;
 }
 
 .table-card mat-card-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 20px 24px !important;
+  color: wh8px 10px !important;
   margin-bottom: 0 !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .table-card mat-card-header mat-card-title {
   color: white;
   margin: 0;
+  font-size: 15
   font-size: 18px;
   font-weight: 500;
+  flex: 1;
+}
+
+.download-btn {
+  text-transform: uppercase;
+  font-weight: 500;
+  gap: 8px;
+}
+
+.green-btn {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.green-btn:disabled {
+  background-color: #a5d6a7 !important;
+  color: rgba(0, 0, 0, 0.38) !important;
 }
 
 /* Table Styling */
@@ -89,10 +120,10 @@ mat-form-field mat-icon[matPrefix] {
 
 .full-width-table th {
   font-weight: 600;
-  color: #333;
-  padding: 16px 12px;
+  color: #35px 4px;
   text-align: left;
   border-bottom: 2px solid #ddd;
+  font-size: 12px;
 }
 
 .full-width-table tbody tr {
@@ -105,7 +136,9 @@ mat-form-field mat-icon[matPrefix] {
 }
 
 .full-width-table td {
-  padding: 14px 12px;
+  padding: 4px 3px;
+  color: #333;
+  font-size: 12pxx;
   color: #333;
 }
 
@@ -122,6 +155,142 @@ mat-form-field mat-icon[matPrefix] {
 
 .action-cell button:hover {
   transform: scale(1.1);
+}
+
+/* Responsive Design */
+
+/* Mobile View (0px - 599px) */
+@media (max-width: 599px) {
+  .employee-container {
+    padding: 4px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .form-card mat-card-header {
+    padding: 6px 8px !important;
+  }
+
+  .form-card mat-card-header mat-card-title {
+    font-size: 14px;
+  }
+
+  .button-group {
+    padding: 2px 0 !important;
+    gap: 4px;
+  }
+
+  .button-group button {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+
+  .table-card mat-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 6px 8px !important;
+  }
+
+  .table-card mat-card-header mat-card-title {
+    font-size: 13px;
+  }
+
+  .download-btn {
+    width: 100%;
+  }
+
+  .full-width-table th,
+  .full-width-table td {
+    padding: 3px 2px;
+    font-size: 10px;
+  }
+}
+
+/* Tablet View (600px - 1023px) */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .employee-container {
+    padding: 6px;
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+  }
+
+  .form-card mat-card-header {
+    padding: 7px 9px !important;
+  }
+
+  .form-card mat-card-header mat-card-title {
+    font-size: 15px;
+  }
+
+  .button-group button {
+    padding: 5px 12px;
+    font-size: 10px;
+  }
+
+  .table-card mat-card-header {
+    padding: 7px 9px !important;
+  }
+
+  .table-card mat-card-header mat-card-title {
+    font-size: 14px;
+  }
+
+  .full-width-table th,
+  .full-width-table td {
+    padding: 4px 3px;
+    font-size: 11px;
+  }
+}
+
+/* Desktop View (1024px and above) */
+@media (min-width: 1024px) {
+  .employee-container {
+    padding: 8px;
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 6px;
+  }
+
+  .form-card mat-card-header {
+    padding: 8px 10px !important;
+  }
+
+  .form-card mat-card-header mat-card-title {
+    font-size: 16px;
+  }
+
+  .button-group button {
+    padding: 5px 14px;
+    font-size: 11px;
+  }
+
+  .table-card mat-card-header {
+    flex-direction: row;
+    padding: 8px 10px !important;
+  }
+
+  .table-card mat-card-header mat-card-title {
+    font-size: 15px;
+  }
+
+  .download-btn {
+    width: auto;
+  }
+
+  .full-width-table th,
+  .full-width-table td {
+    padding: 5px 4px;
+    font-size: 12px;
+  }
 }
 
 /* Responsive Design */

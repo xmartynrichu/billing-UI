@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -13,6 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { MasterService } from '../service/master.service';
 import { NotificationService } from '../common/common.service';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-expense-label-master',
@@ -24,6 +26,7 @@ import { NotificationService } from '../common/common.service';
     MatInputModule,
     MatButtonModule,
     MatTableModule,
+    MatPaginatorModule,
     MatIconModule,
     MatCardModule,
     MatSnackBarModule,
@@ -32,12 +35,14 @@ import { NotificationService } from '../common/common.service';
   templateUrl: './expense-label-master.html',
   styleUrls: ['./expense-label-master.css'],
 })
-export class ExpenseLabelMaster implements OnInit {
+export class ExpenseLabelMaster implements OnInit, AfterViewInit {
 
   labelForm: FormGroup;
   dataSource = new MatTableDataSource<any>();
   displayedColumns = ['id','label_name','amount','createdby','actions'];
   editingId: number | null = null;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -53,6 +58,37 @@ export class ExpenseLabelMaster implements OnInit {
 
   ngOnInit(): void {
     this.getlabelmasterlist();
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+  }
+
+  downloadExcel() {
+    if (this.dataSource.data.length === 0) {
+      this.snackBar.open('No data available to download', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const data = this.dataSource.data.map(row => ({
+      'ID': row.id,
+      'Label': row.label_name,
+      'Amount': row.amt || row.amount,
+      'Created By': row.createdby
+    }));
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Labels');
+    
+    worksheet['!cols'] = [
+      { wch: 8 },
+      { wch: 20 },
+      { wch: 12 },
+      { wch: 15 }
+    ];
+
+    XLSX.writeFile(workbook, 'Expense_Labels.xlsx');
   }
 
   addLabel() {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -7,22 +7,26 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { ProfitService } from '../service/profit.service';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-profit',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatTableModule, MatIconModule, MatButtonModule, MatSnackBarModule, MatTooltipModule, MatProgressSpinnerModule],
+  imports: [CommonModule, MatCardModule, MatTableModule, MatPaginatorModule, MatIconModule, MatButtonModule, MatSnackBarModule, MatTooltipModule, MatProgressSpinnerModule],
   templateUrl: './profit.html',
   styleUrl: './profit.css',
   changeDetection: ChangeDetectionStrategy.Default
 })
-export class Profit implements OnInit {
+export class Profit implements OnInit, AfterViewInit {
 
   reportData: MatTableDataSource<any> = new MatTableDataSource<any>();
   loading = true;
   dataLoaded = false;
   displayedColumns = ['date', 'revenue', 'expense', 'profit'];
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private readonly profitService: ProfitService,
@@ -33,6 +37,10 @@ export class Profit implements OnInit {
   ngOnInit(): void {
     console.log('Profit component initialized');
     this.loadReport();
+  }
+
+  ngAfterViewInit(): void {
+    this.reportData.paginator = this.paginator;
   }
 
   loadReport() {
@@ -62,5 +70,32 @@ export class Profit implements OnInit {
         console.log('Profit data load complete');
       }
     });
+  }
+
+  downloadExcel() {
+    if (this.reportData.data.length === 0) {
+      this.snackBar.open('No data available to download', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const data = this.reportData.data.map(row => ({
+      'Date': row.date,
+      'Revenue': row.revenue,
+      'Expense': row.expense,
+      'Profit': row.profit
+    }));
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Profit');
+    
+    worksheet['!cols'] = [
+      { wch: 15 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 12 }
+    ];
+
+    XLSX.writeFile(workbook, 'Profit_Report.xlsx');
   }
 }

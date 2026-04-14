@@ -3,13 +3,14 @@
  * Manages fish inventory master data
  */
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -20,6 +21,7 @@ import { NotificationService } from '../common/common.service';
 import { Fish, CreateFishRequest } from '../models';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-fish-master',
@@ -31,6 +33,7 @@ import { takeUntil } from 'rxjs/operators';
     MatInputModule,
     MatButtonModule,
     MatTableModule,
+    MatPaginatorModule,
     MatIconModule,
     MatCardModule,
     MatProgressSpinnerModule,
@@ -40,12 +43,14 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './fish-master.html',
   styleUrls: ['./fish-master.css']
 })
-export class FishMaster implements OnInit, OnDestroy {
+export class FishMaster implements OnInit, OnDestroy, AfterViewInit {
   fishForm: FormGroup;
   fishDataSource = new MatTableDataSource<Fish>();
   editingFishId: number | null = null;
   displayedColumns: string[] = ['name', 'price', 'weight', 'actions'];
   isLoading = false;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   private readonly destroy$ = new Subject<void>();
 
@@ -62,9 +67,38 @@ export class FishMaster implements OnInit, OnDestroy {
     this.loadFishList();
   }
 
+  ngAfterViewInit(): void {
+    this.fishDataSource.paginator = this.paginator;
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  downloadExcel() {
+    if (this.fishDataSource.data.length === 0) {
+      this.snackBar.open('No data available to download', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const data = this.fishDataSource.data.map(row => ({
+      'Name': row.name,
+      'Price': row.price,
+      'Weight': row.weight
+    }));
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Fish');
+    
+    worksheet['!cols'] = [
+      { wch: 20 },
+      { wch: 12 },
+      { wch: 12 }
+    ];
+
+    XLSX.writeFile(workbook, 'Fish_Master.xlsx');
   }
 
   /**

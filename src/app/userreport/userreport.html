@@ -34,7 +34,9 @@
         <!-- Date of Birth Field -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Date of Birth</mat-label>
-          <input matInput type="date" [(ngModel)]="newUser.dateofbirth" name="dateofbirth">
+          <input matInput [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" [(ngModel)]="newUser.dateofbirth" name="dateofbirth">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
           <mat-icon matPrefix>cake</mat-icon>
         </mat-form-field>
 
@@ -80,6 +82,10 @@
   <mat-card class="table-card">
     <mat-card-header>
       <mat-card-title>👥 User Registry</mat-card-title>
+      <button mat-raised-button class="download-btn green-btn" (click)="downloadExcel()" [disabled]="dataSource.data.length === 0" matTooltip="Download as Excel">
+        <mat-icon>table_chart</mat-icon>
+        Download Excel
+      </button>
     </mat-card-header>
     
     <div class="mat-elevation-z8">
@@ -145,7 +151,7 @@
       </table>
 
       <!-- Paginator -->
-      <mat-paginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+      <mat-paginator #paginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
     </div>
   </mat-card>
 

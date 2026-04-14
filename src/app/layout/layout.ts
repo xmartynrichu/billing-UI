@@ -26,6 +26,7 @@ export class Layout implements OnInit {
   ];
 
   username = '';
+  sidebarOpen = false;
 
   constructor(
     private router: Router,
@@ -37,6 +38,15 @@ export class Layout implements OnInit {
     }
   }
   ngOnInit(): void {}
+
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar() {
+    this.sidebarOpen = false;
+  }
+
   logout() {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.clear();

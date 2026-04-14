@@ -13,7 +13,7 @@
         <!-- Date Field -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Date</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="date">
+          <input matInput [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" formControlName="date">
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
           <mat-icon matPrefix>calendar_today</mat-icon>
@@ -65,6 +65,10 @@
   <mat-card class="table-card">
     <mat-card-header>
       <mat-card-title>📊 Revenue Records</mat-card-title>
+      <button mat-raised-button class="download-btn green-btn" (click)="downloadExcel()" [disabled]="dataSource.data.length === 0" matTooltip="Download as Excel">
+        <mat-icon>table_chart</mat-icon>
+        Download Excel
+      </button>
     </mat-card-header>
 
     <div class="mat-elevation-z8">
@@ -110,6 +114,7 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
+      <mat-paginator #paginator [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons [pageSize]="10"></mat-paginator>
     </div>
   </mat-card>
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,11 +7,13 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RevenueService } from '../service/revenue.service';
+import * as XLSX from 'xlsx';
 
 export interface RevenueEntry {
   id: number;
@@ -33,6 +35,7 @@ export interface RevenueEntry {
     MatNativeDateModule,
     MatButtonModule,
     MatTableModule,
+    MatPaginatorModule,
     MatIconModule,
     MatCardModule,
     MatSnackBarModule,
@@ -41,16 +44,18 @@ export interface RevenueEntry {
   templateUrl: './revenue.html',
   styleUrls: ['./revenue.css']
 })
-export class Revenue implements OnInit {
+export class Revenue implements OnInit, AfterViewInit {
   
   revenueForm: FormGroup;
   displayedColumns = ['date', 'fishname', 'soldqty','sold', 'actions'];
   dataSource = new MatTableDataSource<RevenueEntry>();
   editingRevenueId: number | null = null;
 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
   constructor(private readonly fb: FormBuilder, private readonly revenueservice: RevenueService, private readonly snackBar: MatSnackBar) {
     this.revenueForm = this.fb.group({
-      date: ['', Validators.required],
+      date: [new Date(), Validators.required], // Default to today
       fishname: ['', Validators.required],
       soldqty: ['', [Validators.required, Validators.min(0)]],
       sold: ['', [Validators.required, Validators.min(0)]]
@@ -59,6 +64,15 @@ export class Revenue implements OnInit {
 
   ngOnInit(): void {
     this.getrevenuemasterlist();
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+  }
+
+  dateFilter = (date: Date | null): boolean => {
+    if (!date) return false;
+    return date <= new Date();
   }
 
   addRevenue() {
@@ -128,5 +142,33 @@ export class Revenue implements OnInit {
       },
       error: err => console.error('Error fetching revenue:', err)
     });
+  }
+
+  downloadExcel() {
+    if (this.dataSource.data.length === 0) {
+      this.snackBar.open('No data available to download', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const data = this.dataSource.data.map(row => ({
+      'Date': new Date(row.date).toLocaleDateString('en-IN'),
+      'Fish Name': row.fishname,
+      'Quantity': row.soldqty,
+      'Amount': row.sold
+    }));
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Revenue');
+    
+    // Set column widths
+    worksheet['!cols'] = [
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 12 },
+      { wch: 12 }
+    ];
+
+    XLSX.writeFile(workbook, 'Revenue_Report.xlsx');
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,6 +7,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -17,6 +18,7 @@ import { NotificationService } from '../common/common.service';
 import { Employee, CreateEmployeeRequest } from '../models';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-employee-master',
@@ -30,6 +32,7 @@ import { takeUntil } from 'rxjs/operators';
     MatNativeDateModule,
     MatButtonModule,
     MatTableModule,
+    MatPaginatorModule,
     MatIconModule,
     MatCardModule,
     MatProgressSpinnerModule,
@@ -39,7 +42,7 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './employee-master.html',
   styleUrls: ['./employee-master.css']
 })
-export class EmployeeMaster implements OnInit, OnDestroy {
+export class EmployeeMaster implements OnInit, OnDestroy, AfterViewInit {
   employeeForm: FormGroup;
   employees = new MatTableDataSource<Employee>();
   editingEmployeeId: number | null = null;
@@ -54,6 +57,8 @@ export class EmployeeMaster implements OnInit, OnDestroy {
     'actions'
   ];
   isLoading = false;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   private destroy$ = new Subject<void>();
 
@@ -70,9 +75,51 @@ export class EmployeeMaster implements OnInit, OnDestroy {
     this.loadEmployeeList();
   }
 
+  ngAfterViewInit(): void {
+    this.employees.paginator = this.paginator;
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  dateFilter = (date: Date | null): boolean => {
+    if (!date) return false;
+    return date <= new Date();
+  }
+
+  downloadExcel() {
+    if (this.employees.data.length === 0) {
+      this.snackBar.open('No data available to download', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const data = this.employees.data.map(row => ({
+      'Name': row.employeename,
+      'Designation': row.designation,
+      'Salary': row.salary,
+      'DOB': new Date(row.dob).toLocaleDateString('en-IN'),
+      'Mobile': row.mobilenumber,
+      'Location': row.location,
+      'Email': row.email
+    }));
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees');
+    
+    worksheet['!cols'] = [
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 12 },
+      { wch: 15 },
+      { wch: 12 },
+      { wch: 15 },
+      { wch: 20 }
+    ];
+
+    XLSX.writeFile(workbook, 'Employee_Master.xlsx');
   }
 
   /**

@@ -1,6 +1,6 @@
 <div class="container">
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.open]="sidebarOpen">
     <h2 class="logo">Billing Software</h2>
 
     <nav>
@@ -8,16 +8,25 @@
         *ngFor="let menu of menuList"
         [routerLink]="menu.route"
         routerLinkActive="active"
+        (click)="closeSidebar()"
       >
         {{ menu.label }}
       </a>
     </nav>
   </aside>
 
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
+
   <!-- Main Content -->
   <main class="main">
     <header class="topbar">
       <div class="top-left">
+        <button class="hamburger-btn" (click)="toggleSidebar()" title="Toggle Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
         <h3>Welcome to Billing</h3>
       </div>
 

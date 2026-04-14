@@ -13,6 +13,9 @@ import { MatCardModule } from '@angular/material/card';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { DatePipe, CommonModule } from '@angular/common';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import * as XLSX from 'xlsx';
 
 /**
  * Local User interface for userreport component
@@ -48,7 +51,9 @@ export interface UserDisplay {
     FormsModule,
     MatIconModule,
     DatePipe,
-    CommonModule
+    CommonModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ]
 })
 export class Userreport implements AfterViewInit, OnInit {
@@ -85,6 +90,46 @@ export class Userreport implements AfterViewInit, OnInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+  }
+
+  dateFilter = (date: Date | null): boolean => {
+    if (!date) return false;
+    return date <= new Date();
+  }
+
+  downloadExcel() {
+    if (this.dataSource.data.length === 0) {
+      this.snackBar.open('No data available to download', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const data = this.dataSource.data.map(row => ({
+      'ID': row.id,
+      'Username': row.user_name,
+      'User ID': row.user_id,
+      'Email': row.email_id,
+      'Mobile': row.mobile_number,
+      'DOB': row.dateofbirth ? new Date(row.dateofbirth).toLocaleDateString('en-IN') : '',
+      'Created By': row.createdby,
+      'Created At': row.createdat
+    }));
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+    
+    worksheet['!cols'] = [
+      { wch: 8 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 12 },
+      { wch: 15 },
+      { wch: 12 },
+      { wch: 15 }
+    ];
+
+    XLSX.writeFile(workbook, 'User_Registry.xlsx');
   }
 
   // Fetch users

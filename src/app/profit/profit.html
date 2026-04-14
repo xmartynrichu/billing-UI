@@ -9,6 +9,10 @@
   <mat-card class="table-card" *ngIf="!loading && dataLoaded">
     <mat-card-header>
       <mat-card-title>📈 Profit Report</mat-card-title>
+      <button mat-raised-button class="download-btn green-btn" (click)="downloadExcel()" [disabled]="reportData.data.length === 0" matTooltip="Download as Excel">
+        <mat-icon>table_chart</mat-icon>
+        Download Excel
+      </button>
     </mat-card-header>
 
     <div class="mat-elevation-z8">
@@ -41,6 +45,7 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
+      <mat-paginator #paginator [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons [pageSize]="10"></mat-paginator>
     </div>
   </mat-card>
 
