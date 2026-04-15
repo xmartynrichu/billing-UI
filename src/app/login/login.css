@@ -4,10 +4,9 @@
   justify-content: center;
   align-items: center;
   background: linear-gradient(
-      rgba(0, 60, 90, 0.75),
-      rgba(0, 60, 90, 0.75)
-    ),
-    url('/assets/harbour-bg.jpg');
+      rgba(0, 60, 90, 0.95),
+      rgba(0, 20, 40, 0.95)
+    );
   background-size: cover;
   background-position: center;
   font-family: 'Segoe UI', Tahoma, sans-serif;
