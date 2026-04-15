@@ -1,8 +1,9 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,6 +32,7 @@ export interface RevenueEntry {
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatButtonModule,
@@ -42,7 +44,8 @@ export interface RevenueEntry {
     MatTooltipModule
   ],
   templateUrl: './revenue.html',
-  styleUrls: ['./revenue.css']
+  styleUrls: ['./revenue.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Revenue implements OnInit, AfterViewInit {
   
@@ -50,10 +53,11 @@ export class Revenue implements OnInit, AfterViewInit {
   displayedColumns = ['date', 'fishname', 'soldqty','sold', 'actions'];
   dataSource = new MatTableDataSource<RevenueEntry>();
   editingRevenueId: number | null = null;
+  fishList: any[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private readonly fb: FormBuilder, private readonly revenueservice: RevenueService, private readonly snackBar: MatSnackBar) {
+  constructor(private readonly fb: FormBuilder, private readonly revenueservice: RevenueService, private readonly snackBar: MatSnackBar, private readonly cdr: ChangeDetectorRef) {
     this.revenueForm = this.fb.group({
       date: [new Date(), Validators.required], // Default to today
       fishname: ['', Validators.required],
@@ -63,6 +67,7 @@ export class Revenue implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.loadFishList();
     this.getrevenuemasterlist();
   }
 
@@ -70,9 +75,32 @@ export class Revenue implements OnInit, AfterViewInit {
     this.dataSource.paginator = this.paginator;
   }
 
+  /**
+   * Load fish list for dropdown
+   */
+  loadFishList() {
+    this.revenueservice.getFishList().subscribe({
+      next: (data: any[]) => {
+        this.fishList = data;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error loading fish list:', err);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
   dateFilter = (date: Date | null): boolean => {
     if (!date) return false;
     return date <= new Date();
+  }
+
+  /**
+   * Compare function for mat-select with string values
+   */
+  compareFish(f1: any, f2: any): boolean {
+    return f1 && f2 ? f1 === f2 : f1 === f2;
   }
 
   addRevenue() {

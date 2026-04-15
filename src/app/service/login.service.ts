@@ -13,10 +13,16 @@ export class LoginService {
 
   constructor(private http: HttpClient) {}
 
-  // GET users (optional / testing)
+  // Check login user
   checkloginuser(userData: any): Observable<any> {
     const url = `${environment.apiBaseUrl}/users/usercheck`;
     return this.http.post<any>(url,userData);
+  }
+
+  // Register new user
+  signup(userData: any): Observable<any> {
+    const url = `${environment.apiBaseUrl}/users`;
+    return this.http.post<any>(url, userData);
   }
 
 

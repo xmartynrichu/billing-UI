@@ -23,7 +23,11 @@
         <!-- Fish Name Field -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Fish Name</mat-label>
-          <input matInput formControlName="fishname" placeholder="Enter fish name">
+          <mat-select formControlName="fishname" [compareWith]="compareFish">
+            <mat-option *ngFor="let fish of fishList" [value]="fish.fish_name">
+              {{ fish.fish_name }}
+            </mat-option>
+          </mat-select>
           <mat-icon matPrefix>pets</mat-icon>
           <mat-error *ngIf="revenueForm.get('fishname')?.hasError('required')">Fish name is required</mat-error>
         </mat-form-field>

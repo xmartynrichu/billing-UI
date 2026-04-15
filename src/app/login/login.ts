@@ -17,13 +17,16 @@ export class Login implements OnInit {
 
   username = '';
   password = '';
-
   showModal = false;
 
   newUser = {
-    username: '',
-    pwd: ''
-   
+    user_name: '',
+    user_id: '',
+    pass_wrd: '',
+    dateofbirth: '',
+    mobile_number: '',
+    email_id: '',
+    createdby: 'system'
   };
 
   constructor(
@@ -35,19 +38,17 @@ export class Login implements OnInit {
   ngOnInit(): void {}
 
   login() {
-    console.log(this.username);
-    console.log(this.password);
     if (!this.username || !this.password) {
       this.notify.showInfo('Enter username and password');
       return;
     }
 
-    this.newUser = {
+    const userData = {
       username: this.username,
       pwd: this.password
     };
 
-    this.loginservice.checkloginuser(this.newUser).subscribe({
+    this.loginservice.checkloginuser(userData).subscribe({
       next: (res: any) => {
         console.log(res);
         if (res.message == 'Success') {
@@ -58,13 +59,39 @@ export class Login implements OnInit {
           this.resetlogin();
           this.notify.showInfo('User not found');
         }
-        this.closeModal();
       },
       error: (err: any) => {
-    console.error(err);
-  
+        console.error(err);
+        this.notify.showInfo('Login failed. Please try again.');
+      }
+    });
   }
-});
+
+  signup() {
+    // Validate required fields
+    if (!this.newUser.user_name || !this.newUser.user_id || !this.newUser.pass_wrd) {
+      this.notify.showInfo('Please fill in all required fields');
+      return;
+    }
+
+    this.loginservice.signup(this.newUser).subscribe({
+      next: (res: any) => {
+        console.log(res);
+        if (res.message === 'Success') {
+          this.notify.showSuccess('User created successfully! You can now login.');
+          this.closeModal();
+          this.resetSignup();
+          // Optionally auto-fill username for login
+          this.username = this.newUser.user_id;
+        } else {
+          this.notify.showInfo(res.message || 'Failed to create user');
+        }
+      },
+      error: (err: any) => {
+        console.error(err);
+        this.notify.showInfo('Error creating user. Please try again.');
+      }
+    });
   }
 
   openModal() {
@@ -75,10 +102,21 @@ export class Login implements OnInit {
     this.showModal = false;
   }
 
-resetlogin(){
-      this.username='';
-      this.password='';
+  resetlogin() {
+    this.username = '';
+    this.password = '';
+  }
+
+  resetSignup() {
+    this.newUser = {
+      user_name: '',
+      user_id: '',
+      pass_wrd: '',
+      dateofbirth: '',
+      mobile_number: '',
+      email_id: '',
+      createdby: 'system'
+    };
+  }
 }
 
-
-}

@@ -16,6 +16,7 @@ import { API_ENDPOINTS } from './api-endpoints.const';
 })
 export class RevenueService extends BaseApiService {
   private readonly baseUrl = `${environment.apiBaseUrl}${API_ENDPOINTS.REVENUE.GET_ALL}`;
+  private readonly fishUrl = `${environment.apiBaseUrl}${API_ENDPOINTS.FISH.GET_ALL}`;
 
   constructor(protected override http: HttpClient) {
     super(http);
@@ -41,5 +42,12 @@ export class RevenueService extends BaseApiService {
   deleteRevenue(id: number): Observable<any> {
     const url = `${this.baseUrl}/${id}`;
     return this.delete<any>(url);
+  }
+
+  /**
+   * Get all fish names for dropdown
+   */
+  getFishList(): Observable<any[]> {
+    return this.get<any[]>(this.fishUrl);
   }
 }

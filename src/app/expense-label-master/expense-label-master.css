@@ -23,6 +23,7 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 8px 10px !important;
+  margin-bottom: 0 !important;
 }
 
 .form-card mat-card-header mat-card-title {
@@ -72,6 +73,24 @@ mat-form-field mat-icon[matPrefix] {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 8px !important;
   overflow: hidden;
+}
+
+.table-card mat-card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 8px 10px !important;
+  margin-bottom: 0 !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-card mat-card-header mat-card-title {
+  color: white;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  flex: 1;
 }
 
 .download-btn {
