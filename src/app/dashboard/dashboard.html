@@ -4,6 +4,32 @@
     <h2 class="section-title">📋 Dashboard Summary</h2>
     
     <div class="dashboard-grid">
+
+       <mat-card class="dashboard-card" (click)="navigate('expenselabel')">
+        <mat-card-title>Total Labels</mat-card-title>
+        <mat-card-content>
+          <h2>{{ dashboardCounts.labels }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+
+       <mat-card class="dashboard-card" (click)="navigate('fishitem')">
+        <mat-card-title>Total Fish</mat-card-title>
+        <mat-card-content>
+          <h2>{{ dashboardCounts.fish }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+
+       <mat-card class="dashboard-card" (click)="navigate('userreport')">
+        <mat-card-title>Total Users</mat-card-title>
+        <mat-card-content>
+          <h2>{{ dashboardCounts.users }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      
+
       <mat-card class="dashboard-card" (click)="navigate('employee')">
         <mat-card-title>Total Employees</mat-card-title>
         <mat-card-content>
@@ -18,19 +44,9 @@
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="dashboard-card" (click)="navigate('fishitem')">
-        <mat-card-title>Total Fish</mat-card-title>
-        <mat-card-content>
-          <h2>{{ dashboardCounts.fish }}</h2>
-        </mat-card-content>
-      </mat-card>
+     
 
-      <mat-card class="dashboard-card" (click)="navigate('expenselabel')">
-        <mat-card-title>Total Labels</mat-card-title>
-        <mat-card-content>
-          <h2>{{ dashboardCounts.labels }}</h2>
-        </mat-card-content>
-      </mat-card>
+     
 
       <mat-card class="dashboard-card" (click)="navigate('revenue')">
         <mat-card-title>Total Revenue</mat-card-title>
@@ -39,12 +55,7 @@
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="dashboard-card" (click)="navigate('user')">
-        <mat-card-title>Total Users</mat-card-title>
-        <mat-card-content>
-          <h2>{{ dashboardCounts.users }}</h2>
-        </mat-card-content>
-      </mat-card>
+     
     </div>
   </div>
 </div>

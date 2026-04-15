@@ -26,7 +26,7 @@ export interface UserDisplay {
   user_name: string;
   user_id: string;
   pass_wrd: string;
-  dateofbirth: string;
+  dateofbirth: string | Date;
   mobile_number: string;
   email_id: string;
   createdby: string;
@@ -60,6 +60,7 @@ export class Userreport implements AfterViewInit, OnInit {
 
   displayedColumns: string[] = ['id','user_name','user_id','email_id','mobile_number','createdat','actions'];
   dataSource = new MatTableDataSource<UserDisplay>();
+  filterValue: string = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -90,6 +91,20 @@ export class Userreport implements AfterViewInit, OnInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    
+    // Set up custom filter predicate to search across all text fields
+    this.dataSource.filterPredicate = (data: any, filter: string) => {
+      const filterLower = filter.toLowerCase().trim();
+      
+      // Search across all relevant fields
+      return (
+        data.id?.toString().toLowerCase().includes(filterLower) ||
+        data.user_name?.toLowerCase().includes(filterLower) ||
+        data.user_id?.toLowerCase().includes(filterLower) ||
+        data.email_id?.toLowerCase().includes(filterLower) ||
+        data.mobile_number?.toLowerCase().includes(filterLower)
+      );
+    };
   }
 
   dateFilter = (date: Date | null): boolean => {
@@ -145,9 +160,14 @@ export class Userreport implements AfterViewInit, OnInit {
     });
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+  applyFilter(event: any): void {
+    // Set the filter value on the dataSource
+    this.dataSource.filter = this.filterValue.trim().toLowerCase();
+    
+    // Reset to first page when filter changes
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   deleteUser(id: number) {
@@ -184,10 +204,9 @@ export class Userreport implements AfterViewInit, OnInit {
   createOrUpdateUser() {
     if (this.editingUserId) {
       // Update user
-      const updatedUser = { ...this.newUser, id: this.editingUserId } as any;
-      this.userService.insertuserdetails(updatedUser).subscribe({
+      this.userService.updateUser(this.editingUserId, this.newUser as any).subscribe({
         next: () => {
-          this.snackBar.open('User updated', 'OK', { duration: 2000 });
+          this.snackBar.open('User updated successfully', 'OK', { duration: 2000 });
           this.closeModal();
           setTimeout(() => {
             this.resetForm();
@@ -237,7 +256,7 @@ export class Userreport implements AfterViewInit, OnInit {
       user_name: user.user_name,
       user_id: user.user_id,
       pass_wrd: user.pass_wrd,
-      dateofbirth: user.dateofbirth,
+      dateofbirth: user.dateofbirth ? new Date(user.dateofbirth) : '',
       mobile_number: user.mobile_number,
       email_id: user.email_id,
       createdby: user.createdby

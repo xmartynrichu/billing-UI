@@ -36,6 +36,14 @@ export class EmployeeService extends BaseApiService {
   }
 
   /**
+   * Update employee by ID
+   */
+  updateEmployee(id: number, entryData: CreateEmployeeRequest): Observable<any> {
+    const url = `${this.baseUrl}/${id}`;
+    return this.put<any>(url, entryData);
+  }
+
+  /**
    * Delete employee by ID
    */
   deleteEmployee(id: number): Observable<any> {

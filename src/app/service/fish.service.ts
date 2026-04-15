@@ -36,6 +36,14 @@ export class FishService extends BaseApiService {
   }
 
   /**
+   * Update fish by ID
+   */
+  updateFish(id: number, entryData: CreateFishRequest): Observable<any> {
+    const url = `${this.baseUrl}/${id}`;
+    return this.put<any>(url, entryData);
+  }
+
+  /**
    * Delete fish by ID
    */
   deleteFish(id: number): Observable<any> {

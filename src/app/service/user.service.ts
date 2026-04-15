@@ -42,4 +42,12 @@ export class UserService extends BaseApiService {
     const url = `${this.baseUrl}/${id}`;
     return this.delete<any>(url);
   }
+
+  /**
+   * Update user by ID
+   */
+  updateUser(id: number, userData: CreateUserRequest): Observable<any> {
+    const url = `${this.baseUrl}/${id}`;
+    return this.put<any>(url, userData);
+  }
 }

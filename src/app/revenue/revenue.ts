@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -14,6 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RevenueService } from '../service/revenue.service';
+import { NotificationService } from '../common/common.service';
 import * as XLSX from 'xlsx';
 
 export interface RevenueEntry {
@@ -30,6 +31,7 @@ export interface RevenueEntry {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -53,11 +55,12 @@ export class Revenue implements OnInit, AfterViewInit {
   displayedColumns = ['date', 'fishname', 'soldqty','sold', 'actions'];
   dataSource = new MatTableDataSource<RevenueEntry>();
   editingRevenueId: number | null = null;
+  filterValue: string = '';
   fishList: any[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private readonly fb: FormBuilder, private readonly revenueservice: RevenueService, private readonly snackBar: MatSnackBar, private readonly cdr: ChangeDetectorRef) {
+  constructor(private readonly fb: FormBuilder, private readonly revenueservice: RevenueService, private readonly snackBar: MatSnackBar, private readonly cdr: ChangeDetectorRef, private readonly notificationService: NotificationService) {
     this.revenueForm = this.fb.group({
       date: [new Date(), Validators.required], // Default to today
       fishname: ['', Validators.required],
@@ -73,6 +76,29 @@ export class Revenue implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
+    
+    // Set up custom filter predicate to search across all text fields
+    this.dataSource.filterPredicate = (data: any, filter: string) => {
+      const filterLower = filter.toLowerCase().trim();
+      
+      // Search across all relevant fields
+      return (
+        (data.date ? new Date(data.date).toLocaleDateString().includes(filterLower) : false) ||
+        data.fishname?.toLowerCase().includes(filterLower) ||
+        data.soldqty?.toString().includes(filterLower) ||
+        data.sold?.toString().includes(filterLower)
+      );
+    };
+  }
+
+  applyFilter(event: any): void {
+    // Set the filter value on the dataSource
+    this.dataSource.filter = this.filterValue.trim().toLowerCase();
+    
+    // Reset to first page when filter changes
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   /**
@@ -106,7 +132,7 @@ export class Revenue implements OnInit, AfterViewInit {
   addRevenue() {
     if (this.revenueForm.invalid) return;
 
-    const { date, fishname, soldqty,sold } = this.revenueForm.value;
+    const { date, fishname, soldqty, sold } = this.revenueForm.value;
 
     const body = {
       entryby: 'admin',
@@ -116,13 +142,34 @@ export class Revenue implements OnInit, AfterViewInit {
       fishsold: sold
     };
 
-    this.revenueservice.insertRevenuedetails(body).subscribe({
-      next: () => {
-        this.revenueForm.reset();
-        this.getrevenuemasterlist();
-      },
-      error: err => console.error('Error inserting revenue:', err)
-    });
+    if (this.editingRevenueId) {
+      // Update existing revenue
+      this.revenueservice.updateRevenue(this.editingRevenueId, body).subscribe({
+        next: () => {
+          this.snackBar.open('Revenue updated successfully', 'OK', { duration: 2000 });
+          this.revenueForm.reset();
+          this.editingRevenueId = null;
+          this.getrevenuemasterlist();
+        },
+        error: err => {
+          console.error('Error updating revenue:', err);
+          this.snackBar.open('Update failed', 'OK', { duration: 2000 });
+        }
+      });
+    } else {
+      // Create new revenue
+      this.revenueservice.insertRevenuedetails(body).subscribe({
+        next: () => {
+          this.snackBar.open('Revenue added successfully', 'OK', { duration: 2000 });
+          this.revenueForm.reset();
+          this.getrevenuemasterlist();
+        },
+        error: err => {
+          console.error('Error inserting revenue:', err);
+          this.snackBar.open('Add failed', 'OK', { duration: 2000 });
+        }
+      });
+    }
   }
 
   editRevenue(entry: RevenueEntry) {
@@ -137,11 +184,22 @@ export class Revenue implements OnInit, AfterViewInit {
   }
 
   deleteRevenue(id: any) {
-    if (!confirm('Are you sure to delete?')) return;
+    this.notificationService.showConfirmation(
+      'Delete Revenue?',
+      'This revenue entry will be permanently deleted.'
+    ).then((confirmed) => {
+      if (!confirmed) return;
 
-    this.revenueservice.deleteRevenue(id).subscribe({
-      next: () => this.getrevenuemasterlist(),
-      error: err => console.error(err)
+      this.revenueservice.deleteRevenue(id).subscribe({
+        next: () => {
+          this.snackBar.open('Deleted successfully', 'OK', { duration: 2000 });
+          this.getrevenuemasterlist();
+        },
+        error: (err: any) => {
+          console.error(err);
+          this.snackBar.open('Delete failed', 'OK', { duration: 2000 });
+        }
+      });
     });
   }
 

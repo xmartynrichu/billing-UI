@@ -110,6 +110,65 @@ mat-form-field mat-icon[matPrefix] {
   color: rgba(0, 0, 0, 0.38) !important;
 }
 
+/* Header Actions Layout */
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+/* Search Field */
+.search-field {
+  width: 300px;
+  max-width: 100%;
+}
+
+.search-field ::ng-deep {
+  /* Input background white */
+  .mat-mdc-text-field-wrapper {
+    padding: 0 !important;
+  }
+  
+  .mdc-text-field {
+    background-color: white !important;
+  }
+  
+  .mdc-text-field--filled {
+    background-color: white !important;
+  }
+  
+  .mdc-text-field__input {
+    color: #333 !important;
+    font-size: 13px !important;
+    background-color: white !important;
+  }
+  
+  .mat-mdc-floating-label {
+    color: #999 !important;
+  }
+  
+  .mat-mdc-form-field-label {
+    color: #999 !important;
+  }
+  
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: #ddd !important;
+  }
+  
+  /* Remove focus overlay */
+  .mat-mdc-form-field-focus-overlay {
+    background-color: transparent !important;
+  }
+}
+
+.search-field mat-icon {
+  color: #333 !important;
+}
+
 /* Table Styling */
 .full-width-table {
   width: 100%;

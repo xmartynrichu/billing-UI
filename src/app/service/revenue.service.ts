@@ -37,6 +37,14 @@ export class RevenueService extends BaseApiService {
   }
 
   /**
+   * Update revenue record by ID
+   */
+  updateRevenue(id: number, entryData: CreateRevenueRequest): Observable<any> {
+    const url = `${this.baseUrl}/${id}`;
+    return this.put<any>(url, entryData);
+  }
+
+  /**
    * Delete revenue record by ID
    */
   deleteRevenue(id: number): Observable<any> {

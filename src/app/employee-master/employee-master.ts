@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -26,6 +26,7 @@ import * as XLSX from 'xlsx';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatDatepickerModule,
@@ -46,6 +47,7 @@ export class EmployeeMaster implements OnInit, OnDestroy, AfterViewInit {
   employeeForm: FormGroup;
   employees = new MatTableDataSource<Employee>();
   editingEmployeeId: number | null = null;
+  filterValue: string = '';
   displayedColumns: string[] = [
     'employeename',
     'designation',
@@ -77,6 +79,31 @@ export class EmployeeMaster implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.employees.paginator = this.paginator;
+    
+    // Set up custom filter predicate to search across all text fields
+    this.employees.filterPredicate = (data: any, filter: string) => {
+      const filterLower = filter.toLowerCase().trim();
+      
+      // Search across all relevant fields
+      return (
+        data.emp_name?.toLowerCase().includes(filterLower) ||
+        data.emp_designation?.toLowerCase().includes(filterLower) ||
+        data.emp_salary?.toString().includes(filterLower) ||
+        data.emp_mobile?.toLowerCase().includes(filterLower) ||
+        data.emp_location?.toLowerCase().includes(filterLower) ||
+        data.emp_email?.toLowerCase().includes(filterLower)
+      );
+    };
+  }
+
+  applyFilter(event: any): void {
+    // Set the filter value on the dataSource
+    this.employees.filter = this.filterValue.trim().toLowerCase();
+    
+    // Reset to first page when filter changes
+    if (this.employees.paginator) {
+      this.employees.paginator.firstPage();
+    }
   }
 
   ngOnDestroy(): void {
@@ -96,13 +123,13 @@ export class EmployeeMaster implements OnInit, OnDestroy, AfterViewInit {
     }
 
     const data = this.employees.data.map(row => ({
-      'Name': row.employeename,
-      'Designation': row.designation,
-      'Salary': row.salary,
-      'DOB': new Date(row.dob).toLocaleDateString('en-IN'),
-      'Mobile': row.mobilenumber,
-      'Location': row.location,
-      'Email': row.email
+      'Name': row.emp_name,
+      'Designation': row.emp_designation,
+      'Salary': row.emp_salary,
+      'DOB': new Date(row.emp_dob).toLocaleDateString('en-IN'),
+      'Mobile': row.emp_mobile,
+      'Location': row.emp_location,
+      'Email': row.emp_email
     }));
 
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
@@ -189,8 +216,11 @@ export class EmployeeMaster implements OnInit, OnDestroy, AfterViewInit {
     };
 
     this.isLoading = true;
-    this.employeeService
-      .insertEmployeedetails(body)
+    const request = this.editingEmployeeId
+      ? this.employeeService.updateEmployee(this.editingEmployeeId, body)
+      : this.employeeService.insertEmployeedetails(body);
+
+    request
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -214,13 +244,13 @@ export class EmployeeMaster implements OnInit, OnDestroy, AfterViewInit {
   editEmployee(emp: Employee): void {
     this.editingEmployeeId = emp.id;
     this.employeeForm.patchValue({
-      employeename: emp.employeename,
-      designation: emp.designation,
-      salary: emp.salary,
-      dob: new Date(emp.dob),
-      mobilenumber: emp.mobilenumber,
-      location: emp.location,
-      email: emp.email
+      employeename: emp.emp_name,
+      designation: emp.emp_designation,
+      salary: emp.emp_salary,
+      dob: new Date(emp.emp_dob),
+      mobilenumber: emp.emp_mobile,
+      location: emp.emp_location,
+      email: emp.emp_email
     });
   }
 

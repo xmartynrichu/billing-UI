@@ -71,11 +71,12 @@ export class BaseApiService {
   private handleError(error: HttpErrorResponse, method: string, endpoint: string) {
     let errorMessage = 'An unknown error occurred';
 
-    if (error.error instanceof ErrorEvent) {
+    // Check if ErrorEvent is defined (exists in browser, not in SSR)
+    if (typeof ErrorEvent !== 'undefined' && error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = `Error: ${error.error.message}`;
     } else {
-      // Server-side error
+      // Server-side error or SSR environment
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
     }
 

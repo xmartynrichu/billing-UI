@@ -5,7 +5,7 @@
 
 import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,6 +29,7 @@ import * as XLSX from 'xlsx';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -47,6 +48,7 @@ export class FishMaster implements OnInit, OnDestroy, AfterViewInit {
   fishForm: FormGroup;
   fishDataSource = new MatTableDataSource<Fish>();
   editingFishId: number | null = null;
+  filterValue: string = '';
   displayedColumns: string[] = ['name', 'price', 'weight', 'actions'];
   isLoading = false;
 
@@ -69,6 +71,28 @@ export class FishMaster implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.fishDataSource.paginator = this.paginator;
+    
+    // Set up custom filter predicate to search across all text fields
+    this.fishDataSource.filterPredicate = (data: any, filter: string) => {
+      const filterLower = filter.toLowerCase().trim();
+      
+      // Search across all relevant fields
+      return (
+        data.fish_name?.toLowerCase().includes(filterLower) ||
+        data.fish_price?.toString().includes(filterLower) ||
+        data.fish_weight?.toString().includes(filterLower)
+      );
+    };
+  }
+
+  applyFilter(event: any): void {
+    // Set the filter value on the dataSource
+    this.fishDataSource.filter = this.filterValue.trim().toLowerCase();
+    
+    // Reset to first page when filter changes
+    if (this.fishDataSource.paginator) {
+      this.fishDataSource.paginator.firstPage();
+    }
   }
 
   ngOnDestroy(): void {
@@ -83,9 +107,9 @@ export class FishMaster implements OnInit, OnDestroy, AfterViewInit {
     }
 
     const data = this.fishDataSource.data.map(row => ({
-      'Name': row.name,
-      'Price': row.price,
-      'Weight': row.weight
+      'Name': row.fish_name,
+      'Price': row.fish_price,
+      'Weight': row.fish_weight
     }));
 
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
@@ -151,8 +175,11 @@ export class FishMaster implements OnInit, OnDestroy, AfterViewInit {
     };
 
     this.isLoading = true;
-    this.fishService
-      .insertFishdetails(body)
+    const request = this.editingFishId
+      ? this.fishService.updateFish(this.editingFishId, body)
+      : this.fishService.insertFishdetails(body);
+
+    request
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -176,9 +203,9 @@ export class FishMaster implements OnInit, OnDestroy, AfterViewInit {
   editFish(fish: Fish): void {
     this.editingFishId = fish.id;
     this.fishForm.patchValue({
-      name: fish.name,
-      price: fish.price,
-      weight: fish.weight
+      name: fish.fish_name,
+      price: fish.fish_price,
+      weight: fish.fish_weight
     });
   }
 

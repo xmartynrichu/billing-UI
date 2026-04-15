@@ -33,4 +33,13 @@ export class ProfitService extends BaseApiService {
   getProfitReport(): Observable<ProfitReport[]> {
     return this.get<ProfitReport[]>(this.baseUrl);
   }
+
+  /**
+   * Send profit report via email with Excel attachment
+   * Backend fetches fresh data from database using get_profittomail function
+   */
+  sendProfitReportEmail(reportPayload: any, recipientEmail: string): Observable<any> {
+    const mailUrl = `${environment.apiBaseUrl}/mail/send-profit-report`;
+    return this.post<any>(mailUrl, reportPayload);
+  }
 }

@@ -4,11 +4,11 @@
 
 export interface Fish {
   id: number;
-  name: string;
-  price: number;
-  weight: number;
-  createdAt?: Date;
-  updatedAt?: Date;
+  fish_name: string;
+  fish_price: string | number;
+  fish_weight: string | number;
+  createdby?: string;
+  createdat?: string;
 }
 
 export interface CreateFishRequest {

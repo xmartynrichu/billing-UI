@@ -4,15 +4,15 @@
 
 export interface Employee {
   id: number;
-  employeename: string;
-  designation: string;
-  salary: number;
-  dob: Date;
-  mobilenumber: string;
-  location: string;
-  email: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  emp_name: string;
+  emp_designation: string;
+  emp_salary: string | number;
+  emp_dob: string | Date;
+  emp_mobile: string;
+  emp_location: string;
+  emp_email: string;
+  createdby?: string;
+  createdat?: string;
 }
 
 export interface CreateEmployeeRequest {

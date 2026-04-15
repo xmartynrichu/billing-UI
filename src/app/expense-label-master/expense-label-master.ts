@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -22,6 +22,7 @@ import * as XLSX from 'xlsx';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -41,6 +42,7 @@ export class ExpenseLabelMaster implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<any>();
   displayedColumns = ['id','label_name','amount','createdby','actions'];
   editingId: number | null = null;
+  filterValue: string = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -62,6 +64,30 @@ export class ExpenseLabelMaster implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
+    
+    // Set up custom filter predicate to search across all text fields
+    this.dataSource.filterPredicate = (data: any, filter: string) => {
+      const filterLower = filter.toLowerCase().trim();
+      
+      // Search across all relevant fields
+      return (
+        data.id?.toString().toLowerCase().includes(filterLower) ||
+        data.label_name?.toLowerCase().includes(filterLower) ||
+        data.amt?.toString().includes(filterLower) ||
+        data.amount?.toString().includes(filterLower) ||
+        data.createdby?.toLowerCase().includes(filterLower)
+      );
+    };
+  }
+
+  applyFilter(event: any): void {
+    // Set the filter value on the dataSource
+    this.dataSource.filter = this.filterValue.trim().toLowerCase();
+    
+    // Reset to first page when filter changes
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   downloadExcel() {
