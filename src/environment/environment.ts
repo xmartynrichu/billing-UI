@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:3000',
-  //apiBaseUrl: 'https://billing-api-zjgn.onrender.com',
+  //apiBaseUrl: 'http://localhost:3000',
+  apiBaseUrl: 'https://billing-api-zjgn.onrender.com',
   apiTimeout: 30000,
   appName: 'Billing System',
   appVersion: '1.0.0',
