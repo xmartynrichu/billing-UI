@@ -13,28 +13,28 @@
         <!-- Username Field -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Username</mat-label>
-          <input matInput placeholder="Enter username" [(ngModel)]="newUser.user_name" name="user_name">
+          <input matInput placeholder="Enter username" [(ngModel)]="newUser.user_name" name="user_name" autocomplete="off">
           <mat-icon matPrefix>person</mat-icon>
         </mat-form-field>
 
         <!-- User ID Field -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>User ID</mat-label>
-          <input matInput placeholder="Enter user ID" [(ngModel)]="newUser.user_id" name="user_id">
+          <input matInput placeholder="Enter user ID" [(ngModel)]="newUser.user_id" name="user_id" autocomplete="off">
           <mat-icon matPrefix>badge</mat-icon>
         </mat-form-field>
 
         <!-- Password Field -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Password</mat-label>
-          <input matInput type="password" placeholder="Enter password" [(ngModel)]="newUser.pass_wrd" name="pass_wrd">
+          <input matInput type="password" placeholder="Enter password" [(ngModel)]="newUser.pass_wrd" name="pass_wrd" autocomplete="off">
           <mat-icon matPrefix>lock</mat-icon>
         </mat-form-field>
 
         <!-- Date of Birth Field -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Date of Birth</mat-label>
-          <input matInput [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" [(ngModel)]="newUser.dateofbirth" name="dateofbirth">
+          <input matInput [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" [(ngModel)]="newUser.dateofbirth" name="dateofbirth" autocomplete="off">
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
           <mat-icon matPrefix>cake</mat-icon>
@@ -43,14 +43,14 @@
         <!-- Mobile Number Field -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Mobile Number</mat-label>
-          <input matInput placeholder="Enter mobile number" [(ngModel)]="newUser.mobile_number" name="mobile_number">
+          <input matInput placeholder="Enter mobile number" [(ngModel)]="newUser.mobile_number" name="mobile_number" autocomplete="off">
           <mat-icon matPrefix>phone</mat-icon>
         </mat-form-field>
 
         <!-- Email Field -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Email</mat-label>
-          <input matInput placeholder="Enter email address" [(ngModel)]="newUser.email_id" name="email_id">
+          <input matInput placeholder="Enter email address" [(ngModel)]="newUser.email_id" name="email_id" autocomplete="off">
           <mat-icon matPrefix>email</mat-icon>
         </mat-form-field>
       </div>
@@ -70,21 +70,26 @@
   </mat-card>
 
   <!-- Users Table -->
-  <mat-card class="table-card">
+  <mat-card class="table-card" *ngIf="!isLoading && dataSource.data.length > 0">
     <mat-card-header>
       <mat-card-title>👥 User Registry</mat-card-title>
-      <div class="header-actions">
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>🔍 Search by any field</mat-label>
-          <input matInput [(ngModel)]="filterValue" (ngModelChange)="applyFilter($event)" placeholder="Search ID, Name, Email...">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-        <button mat-raised-button class="download-btn green-btn" (click)="downloadExcel()" [disabled]="dataSource.data.length === 0" matTooltip="Download as Excel">
-          <mat-icon>table_chart</mat-icon>
-          Download Excel
-        </button>
-      </div>
+      <button mat-raised-button class="download-btn green-btn" (click)="downloadExcel()" [disabled]="dataSource.data.length === 0" matTooltip="Download as Excel">
+        <mat-icon>table_chart</mat-icon>
+        Download Excel
+      </button>
     </mat-card-header>
+
+    <!-- Search Field -->
+    <div style="padding: 8px 10px; background: #f9f9f9;">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search User</mat-label>
+        <input matInput 
+          [(ngModel)]="filterValue" 
+          (keyup)="applyFilter($event)" 
+          placeholder="Search any field...">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+    </div>
     
     <div class="mat-elevation-z8">
       <table mat-table [dataSource]="dataSource" matSort class="full-width-table">
@@ -141,15 +146,21 @@
         <!-- Header & Row -->
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-
-        <!-- No Data -->
-        <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell" colspan="7">No users found</td>
-        </tr>
       </table>
 
       <!-- Paginator -->
       <mat-paginator #paginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+    </div>
+  </mat-card>
+
+  <!-- No Data Card -->
+  <mat-card class="table-card" *ngIf="!isLoading && dataSource.data.length === 0">
+    <mat-card-header>
+      <mat-card-title>👥 User Registry</mat-card-title>
+    </mat-card-header>
+    <div class="no-data">
+      <mat-icon>info</mat-icon>
+      <p>No user data found.</p>
     </div>
   </mat-card>
 

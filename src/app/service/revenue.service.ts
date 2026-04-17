@@ -3,8 +3,9 @@
  * Handles all revenue-related API operations
  */
 
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
 import { environment } from '../../environment/environment';
 import { Revenue, CreateRevenueRequest } from '../models';
@@ -18,7 +19,10 @@ export class RevenueService extends BaseApiService {
   private readonly baseUrl = `${environment.apiBaseUrl}${API_ENDPOINTS.REVENUE.GET_ALL}`;
   private readonly fishUrl = `${environment.apiBaseUrl}${API_ENDPOINTS.FISH.GET_ALL}`;
 
-  constructor(protected override http: HttpClient) {
+  constructor(
+    protected override http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     super(http);
   }
 
@@ -26,7 +30,9 @@ export class RevenueService extends BaseApiService {
    * Get all revenue records
    */
   getRevenuedetails(): Observable<Revenue[]> {
-    return this.get<Revenue[]>(this.baseUrl);
+    const currentuser = isPlatformBrowser(this.platformId) ? localStorage.getItem('username') || '' : '';
+    const url = `${this.baseUrl}?currentuser=${encodeURIComponent(currentuser)}`;
+    return this.get<Revenue[]>(url);
   }
 
   /**
@@ -56,6 +62,8 @@ export class RevenueService extends BaseApiService {
    * Get all fish names for dropdown
    */
   getFishList(): Observable<any[]> {
-    return this.get<any[]>(this.fishUrl);
+    const currentuser = isPlatformBrowser(this.platformId) ? localStorage.getItem('username') || '' : '';
+    const url = `${this.fishUrl}?currentuser=${encodeURIComponent(currentuser)}`;
+    return this.get<any[]>(url);
   }
 }

@@ -8,14 +8,14 @@
       <form [formGroup]="fishForm" (ngSubmit)="addFish()" class="form-grid">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Fish Name</mat-label>
-          <input matInput formControlName="name" placeholder="Enter fish name">
+          <input matInput formControlName="name" placeholder="Enter fish name" autocomplete="off">
           <mat-icon matPrefix>pets</mat-icon>
           <mat-error *ngIf="fishForm.get('name')?.hasError('required')">Name is required</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Price</mat-label>
-          <input matInput type="number" formControlName="price" placeholder="Enter price">
+          <input matInput type="number" formControlName="price" placeholder="Enter price" autocomplete="off">
           <mat-icon matPrefix>currency_rupee</mat-icon>
           <mat-error *ngIf="fishForm.get('price')?.hasError('required')">Price is required</mat-error>
           <mat-error *ngIf="fishForm.get('price')?.hasError('min')">Price must be positive</mat-error>
@@ -23,7 +23,7 @@
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Weight (kg)</mat-label>
-          <input matInput type="number" formControlName="weight" placeholder="Enter weight">
+          <input matInput type="number" formControlName="weight" placeholder="Enter weight" autocomplete="off">
           <mat-icon matPrefix>scale</mat-icon>
           <mat-error *ngIf="fishForm.get('weight')?.hasError('required')">Weight is required</mat-error>
           <mat-error *ngIf="fishForm.get('weight')?.hasError('min')">Weight must be positive</mat-error>
@@ -43,21 +43,26 @@
     </mat-card-actions>
   </mat-card>
 
-  <mat-card class="table-card">
+  <mat-card class="table-card" *ngIf="fishDataSource.data.length > 0">
     <mat-card-header>
       <mat-card-title>📋 Fish Inventory</mat-card-title>
-      <div class="header-actions">
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>🔍 Search by any field</mat-label>
-          <input matInput [(ngModel)]="filterValue" (ngModelChange)="applyFilter($event)" placeholder="Search Name, Price, Weight...">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-        <button mat-raised-button class="download-btn green-btn" (click)="downloadExcel()" [disabled]="fishDataSource.data.length === 0" matTooltip="Download as Excel">
-          <mat-icon>table_chart</mat-icon>
-          Download Excel
-        </button>
-      </div>
+      <button mat-raised-button class="download-btn green-btn" (click)="downloadExcel()" [disabled]="fishDataSource.data.length === 0" matTooltip="Download as Excel">
+        <mat-icon>table_chart</mat-icon>
+        Download Excel
+      </button>
     </mat-card-header>
+
+    <!-- Search Field -->
+    <div style="padding: 8px 10px; background: #f9f9f9;">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Fish</mat-label>
+        <input matInput 
+          [(ngModel)]="filterValue" 
+          (keyup)="applyFilter($event)" 
+          placeholder="Search any field...">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+    </div>
 
     <div class="mat-elevation-z8">
       <table mat-table [dataSource]="fishDataSource" class="full-width-table">
@@ -93,6 +98,17 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
       <mat-paginator #paginator [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons [pageSize]="10"></mat-paginator>
+    </div>
+  </mat-card>
+
+  <!-- No Data Card -->
+  <mat-card class="table-card" *ngIf="fishDataSource.data.length === 0">
+    <mat-card-header>
+      <mat-card-title>📋 Fish Inventory</mat-card-title>
+    </mat-card-header>
+    <div class="no-data">
+      <mat-icon>info</mat-icon>
+      <p>No fish data found.</p>
     </div>
   </mat-card>
 </div>

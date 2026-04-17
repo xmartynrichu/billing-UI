@@ -4,13 +4,12 @@ import { Dashboard } from './dashboard/dashboard';
 import { Expense } from './expense/expense';
 import { Revenue } from './revenue/revenue';
 import { EmployeeMaster } from './employee-master/employee-master';
-
-import { Report } from './report/report';
 import { FishMaster } from './fish-master/fish-master';
 import { Layout } from './layout/layout';
 import { ExpenseLabelMaster } from './expense-label-master/expense-label-master';
 import { Userreport } from './userreport/userreport';
 import { Profit } from './profit/profit';
+import { AdminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   // Redirect root to login
@@ -28,10 +27,9 @@ export const routes: Routes = [
       { path: 'expense', component: Expense },
       { path: 'revenue', component: Revenue },
       { path: 'employee', component: EmployeeMaster },
-      { path: 'report', component: Report },
       { path: 'fishitem', component: FishMaster },
       { path: 'expenselabel', component: ExpenseLabelMaster },
-      { path: 'userreport', component: Userreport },
+      { path: 'userreport', component: Userreport, canActivate: [AdminGuard] },
       { path: 'profitreport', component: Profit },
     ],
   },

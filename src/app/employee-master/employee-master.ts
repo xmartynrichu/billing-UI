@@ -205,7 +205,7 @@ export class EmployeeMaster implements OnInit, OnDestroy, AfterViewInit {
     } = this.employeeForm.value;
 
     const body: CreateEmployeeRequest = {
-      entryby: 'admin',
+      entryby: localStorage.getItem('username') || 'system',
       empname: employeename,
       empdesignation: designation,
       empsalary: salary,

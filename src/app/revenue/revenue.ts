@@ -135,7 +135,7 @@ export class Revenue implements OnInit, AfterViewInit {
     const { date, fishname, soldqty, sold } = this.revenueForm.value;
 
     const body = {
-      entryby: 'admin',
+      entryby: localStorage.getItem('username') || 'system',
       entrydate: date,
       fishname: fishname,
       fishqty: soldqty,
@@ -222,7 +222,6 @@ export class Revenue implements OnInit, AfterViewInit {
 
         // Wrap in setTimeout to avoid NG0100
         setTimeout(() => {
-          console.log(mappedData);
           this.dataSource.data = mappedData;
         });
       },

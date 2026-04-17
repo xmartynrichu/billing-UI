@@ -6,6 +6,9 @@ import { DashboardService } from '../service/dashboard.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ChartData } from '../models/dashboard.model';
+import { isPlatformBrowser } from '@angular/common';
+import { PLATFORM_ID, Inject } from '@angular/core';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,6 +21,7 @@ import { takeUntil } from 'rxjs/operators';
 export class Dashboard implements OnInit, OnDestroy {
   loading: boolean = true;
   private readonly destroy$ = new Subject<void>();
+  currentUser: string = '';
 
   dashboardCounts = {
     employees: 0,
@@ -28,35 +32,36 @@ export class Dashboard implements OnInit, OnDestroy {
     users: 0,
   };
 
+  chartData: ChartData[] = [];
+  chartMaxValue: number = 0;
+
   constructor(
     private readonly dashboardService: DashboardService,
     private readonly router: Router,
-    private readonly cdr: ChangeDetectorRef
-  ) {}
+    private readonly cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.currentUser = localStorage.getItem('username') || '';
+    }
+  }
 
   ngOnInit(): void {
-    console.log('Dashboard component initialized');
     this.getDashboardList();
   }
 
   ngOnDestroy(): void {
-    console.log('Dashboard component destroyed');
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   getDashboardList(): void {
-    console.log('Fetching dashboard data...');
     this.dashboardService
       .getdashboarddetails()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: any) => {
-          console.log('Dashboard API response:', data);
-          console.log('Data structure:', JSON.stringify(data, null, 2));
-
           if (!data) {
-            console.warn('Dashboard API returned empty data');
             this.loading = false;
             this.cdr.markForCheck();
             return;
@@ -79,25 +84,41 @@ export class Dashboard implements OnInit, OnDestroy {
               users: extractValue(data?.usrcount),
             };
 
-            console.log('Processed dashboard counts:', this.dashboardCounts);
+            // Process chart data
+            this.chartData = data?.chartData || [];
+            this.calculateChartMaxValue();
+
             this.loading = false;
             this.cdr.markForCheck();
           } catch (err) {
-            console.error('Error processing dashboard data:', err);
             this.loading = false;
             this.cdr.markForCheck();
           }
         },
         error: (err) => {
-          console.error('Dashboard API error:', err);
-          console.error('Error details:', err.message);
           this.loading = false;
           this.cdr.markForCheck();
         },
-        complete: () => {
-          console.log('Dashboard API subscription completed');
-        },
+        complete: () => {},
       });
+  }
+
+  calculateChartMaxValue(): void {
+    if (this.chartData.length === 0) {
+      this.chartMaxValue = 100;
+      return;
+    }
+
+    const maxExpense = Math.max(...this.chartData.map(d => d.total_expense || 0));
+    const maxRevenue = Math.max(...this.chartData.map(d => d.total_revenue || 0));
+    const max = Math.max(maxExpense, maxRevenue);
+
+    // Round up to nearest 1000 for better scale
+    this.chartMaxValue = Math.ceil(max / 1000) * 1000 || 100;
+  }
+
+  getBarHeight(value: number): number {
+    return (value / this.chartMaxValue) * 100;
   }
 
   navigate(e: any): void {

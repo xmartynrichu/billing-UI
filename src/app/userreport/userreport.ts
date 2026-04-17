@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -12,7 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { DatePipe, CommonModule } from '@angular/common';
+import { DatePipe, CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import * as XLSX from 'xlsx';
@@ -61,6 +61,7 @@ export class Userreport implements AfterViewInit, OnInit {
   displayedColumns: string[] = ['id','user_name','user_id','email_id','mobile_number','createdat','actions'];
   dataSource = new MatTableDataSource<UserDisplay>();
   filterValue: string = '';
+  isLoading = true;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -75,36 +76,29 @@ export class Userreport implements AfterViewInit, OnInit {
     dateofbirth: '',
     mobile_number: '',
     email_id: '',
-    createdby: 'admin'
+    createdby: 'system'
   };
 
   constructor(
     private readonly userService: UserService, 
     private readonly snackBar: MatSnackBar,
-    private readonly notificationService: NotificationService
-  ) {}
+    private readonly notificationService: NotificationService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    // Set createdby from localStorage if in browser
+    if (isPlatformBrowser(this.platformId)) {
+      this.newUser.createdby = localStorage.getItem('username') || 'system';
+    }
+  }
 
   ngOnInit() {
-    this.loadUsers();
+    // Load users - will be properly set up when view initializes
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-    
-    // Set up custom filter predicate to search across all text fields
-    this.dataSource.filterPredicate = (data: any, filter: string) => {
-      const filterLower = filter.toLowerCase().trim();
-      
-      // Search across all relevant fields
-      return (
-        data.id?.toString().toLowerCase().includes(filterLower) ||
-        data.user_name?.toLowerCase().includes(filterLower) ||
-        data.user_id?.toLowerCase().includes(filterLower) ||
-        data.email_id?.toLowerCase().includes(filterLower) ||
-        data.mobile_number?.toLowerCase().includes(filterLower)
-      );
-    };
+    // Load users after view is initialized
+    // The paginator and sort will be assigned in loadUsers after dataSource is created
+    this.loadUsers();
   }
 
   dateFilter = (date: Date | null): boolean => {
@@ -149,14 +143,35 @@ export class Userreport implements AfterViewInit, OnInit {
 
   // Fetch users
   loadUsers() {
+    this.isLoading = true;
     this.userService.getUserdetails().subscribe({
       next: (data: any[]) => {
-        setTimeout(() => {
-          this.dataSource.data = data as UserDisplay[];
-          console.log('Users:', data);
-        }, 0);
+        // Create a completely new MatTableDataSource instance
+        // This ensures proper change detection and binding
+        this.dataSource = new MatTableDataSource<UserDisplay>(data as UserDisplay[]);
+        
+        // Reapply sort and paginator after creating new dataSource
+        this.dataSource.sort = this.sort;
+        this.dataSource.paginator = this.paginator;
+        
+        // Reapply filter predicate
+        this.dataSource.filterPredicate = (data: any, filter: string) => {
+          const filterLower = filter.toLowerCase().trim();
+          return (
+            data.id?.toString().toLowerCase().includes(filterLower) ||
+            data.user_name?.toLowerCase().includes(filterLower) ||
+            data.user_id?.toLowerCase().includes(filterLower) ||
+            data.email_id?.toLowerCase().includes(filterLower) ||
+            data.mobile_number?.toLowerCase().includes(filterLower)
+          );
+        };
+        
+        this.isLoading = false;
       },
-      error: (err: any) => console.error('Error fetching users', err)
+      error: (err: any) => {
+        console.error('Error fetching users', err);
+        this.isLoading = false;
+      }
     });
   }
 
@@ -202,6 +217,12 @@ export class Userreport implements AfterViewInit, OnInit {
   }
 
   createOrUpdateUser() {
+    // Validate required fields
+    if (!this.newUser.user_name || !this.newUser.user_id || !this.newUser.pass_wrd) {
+      this.snackBar.open('Please fill all required fields', 'OK', { duration: 2000 });
+      return;
+    }
+
     if (this.editingUserId) {
       // Update user
       this.userService.updateUser(this.editingUserId, this.newUser as any).subscribe({
@@ -219,15 +240,33 @@ export class Userreport implements AfterViewInit, OnInit {
         }
       });
     } else {
+      // Check for duplicate username locally first
+      const userExists = this.dataSource.data.some(user => 
+        user.user_id?.toLowerCase() === this.newUser.user_id?.toLowerCase()
+      );
+
+      if (userExists) {
+        this.snackBar.open('Username already exists. Please choose a different username.', 'OK', { duration: 3000 });
+        return;
+      }
+
       // Create new user
       this.userService.insertuserdetails(this.newUser as any).subscribe({
         next: (res: any) => {
-          this.snackBar.open(res.message || 'User created', 'OK', { duration: 2000 });
-          this.closeModal();
-          setTimeout(() => {
-            this.resetForm();
-            this.loadUsers();
-          }, 0);
+          const message = res.message || 'User created';
+          
+          // Check if insert was successful
+          if (message.toLowerCase().includes('successfully')) {
+            this.snackBar.open(message, 'OK', { duration: 2000 });
+            this.closeModal();
+            setTimeout(() => {
+              this.resetForm();
+              this.loadUsers();
+            }, 0);
+          } else {
+            // Handle duplicate username or other error messages
+            this.snackBar.open(message, 'OK', { duration: 3000 });
+          }
         },
         error: (err: any) => {
           console.error(err);
@@ -238,6 +277,7 @@ export class Userreport implements AfterViewInit, OnInit {
   }
 
   resetForm() {
+    const username = isPlatformBrowser(this.platformId) ? localStorage.getItem('username') || 'system' : 'system';
     this.newUser = {
       user_name: '',
       user_id: '',
@@ -245,7 +285,7 @@ export class Userreport implements AfterViewInit, OnInit {
       dateofbirth: '',
       mobile_number: '',
       email_id: '',
-      createdby: 'admin'
+      createdby: username
     };
     this.editingUserId = null;
   }

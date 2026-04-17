@@ -3,8 +3,9 @@
  * Handles all fish-related API operations
  */
 
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
 import { environment } from '../../environment/environment';
 import { Fish, CreateFishRequest } from '../models';
@@ -17,7 +18,10 @@ import { API_ENDPOINTS } from './api-endpoints.const';
 export class FishService extends BaseApiService {
   private readonly baseUrl = `${environment.apiBaseUrl}${API_ENDPOINTS.FISH.GET_ALL}`;
 
-  constructor(protected override http: HttpClient) {
+  constructor(
+    protected override http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     super(http);
   }
 
@@ -25,7 +29,9 @@ export class FishService extends BaseApiService {
    * Get all fish
    */
   getFishdetails(): Observable<Fish[]> {
-    return this.get<Fish[]>(this.baseUrl);
+    const currentuser = isPlatformBrowser(this.platformId) ? localStorage.getItem('username') || '' : '';
+    const url = `${this.baseUrl}?currentuser=${encodeURIComponent(currentuser)}`;
+    return this.get<Fish[]>(url);
   }
 
   /**

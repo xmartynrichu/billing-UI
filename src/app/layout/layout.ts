@@ -15,14 +15,12 @@ export class Layout implements OnInit {
     { label: 'Dashboard', route: '/dashboard' },
     { label: 'Revenue', route: '/revenue' },
     { label: 'Expense', route: '/expense' },
-    { label: 'Report', route: '/report' },
     { label: 'Profit', route: '/profitreport' },
 
     { label: 'Fish Item', route: '/fishitem' },
 
     { label: 'Employee', route: '/employee' },
     { label: 'Expense Label', route: '/expenselabel' },
-    { label: 'User Creation', route: '/userreport' },
   ];
 
   username = '';
@@ -35,6 +33,11 @@ export class Layout implements OnInit {
     // ✅ Only access localStorage in the browser
     if (isPlatformBrowser(this.platformId)) {
       this.username = localStorage.getItem('username') || 'User';
+      
+      // Add User Creation menu only for a1012
+      if (this.username === 'a1012') {
+        this.menuList.push({ label: 'User Creation', route: '/userreport' });
+      }
     }
   }
   ngOnInit(): void {}

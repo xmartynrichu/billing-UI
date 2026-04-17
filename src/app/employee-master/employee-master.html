@@ -8,21 +8,21 @@
       <form [formGroup]="employeeForm" (ngSubmit)="addEmployee()" class="form-grid">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Employee Name</mat-label>
-          <input matInput formControlName="employeename" placeholder="Enter employee name">
+          <input matInput formControlName="employeename" placeholder="Enter employee name" autocomplete="off">
           <mat-icon matPrefix>person</mat-icon>
           <mat-error *ngIf="employeeForm.get('employeename')?.hasError('required')">Employee Name is required</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Designation</mat-label>
-          <input matInput formControlName="designation" placeholder="Enter designation">
+          <input matInput formControlName="designation" placeholder="Enter designation" autocomplete="off">
           <mat-icon matPrefix>badge</mat-icon>
           <mat-error *ngIf="employeeForm.get('designation')?.hasError('required')">Designation is required</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Salary</mat-label>
-          <input matInput type="number" formControlName="salary" placeholder="Enter salary">
+          <input matInput type="number" formControlName="salary" placeholder="Enter salary" autocomplete="off">
           <mat-icon matPrefix>currency_rupee</mat-icon>
           <mat-error *ngIf="employeeForm.get('salary')?.hasError('required')">Salary is required</mat-error>
           <mat-error *ngIf="employeeForm.get('salary')?.hasError('min')">Salary must be positive</mat-error>
@@ -30,7 +30,7 @@
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Date of Birth</mat-label>
-          <input matInput [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" formControlName="dob">
+          <input matInput [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" formControlName="dob" autocomplete="off">
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
           <mat-icon matPrefix>cake</mat-icon>
@@ -39,7 +39,7 @@
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Mobile Number</mat-label>
-          <input matInput formControlName="mobilenumber" maxlength="10" placeholder="10-digit mobile">
+          <input matInput formControlName="mobilenumber" maxlength="10" placeholder="10-digit mobile" autocomplete="off">
           <mat-icon matPrefix>phone</mat-icon>
           <mat-error *ngIf="employeeForm.get('mobilenumber')?.hasError('required')">Mobile number is required</mat-error>
           <mat-error *ngIf="employeeForm.get('mobilenumber')?.hasError('pattern')">Enter a 10-digit number</mat-error>
@@ -47,14 +47,14 @@
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Location</mat-label>
-          <input matInput formControlName="location" placeholder="Enter location">
+          <input matInput formControlName="location" placeholder="Enter location" autocomplete="off">
           <mat-icon matPrefix>location_on</mat-icon>
           <mat-error *ngIf="employeeForm.get('location')?.hasError('required')">Location is required</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Email</mat-label>
-          <input matInput formControlName="email" placeholder="Enter email address">
+          <input matInput formControlName="email" placeholder="Enter email address" autocomplete="off">
           <mat-icon matPrefix>email</mat-icon>
           <mat-error *ngIf="employeeForm.get('email')?.hasError('required')">Email is required</mat-error>
           <mat-error *ngIf="employeeForm.get('email')?.hasError('email')">Enter a valid email</mat-error>
@@ -74,21 +74,26 @@
     </mat-card-actions>
   </mat-card>
 
-  <mat-card class="table-card">
+  <mat-card class="table-card" *ngIf="employees.data.length > 0">
     <mat-card-header>
       <mat-card-title>📋 Employee List</mat-card-title>
-      <div class="header-actions">
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>🔍 Search by any field</mat-label>
-          <input matInput [(ngModel)]="filterValue" (ngModelChange)="applyFilter($event)" placeholder="Search Name, Email, Mobile...">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-        <button mat-raised-button class="download-btn green-btn" (click)="downloadExcel()" [disabled]="employees.data.length === 0" matTooltip="Download as Excel">
-          <mat-icon>table_chart</mat-icon>
-          Download Excel
-        </button>
-      </div>
+      <button mat-raised-button class="download-btn green-btn" (click)="downloadExcel()" [disabled]="employees.data.length === 0" matTooltip="Download as Excel">
+        <mat-icon>table_chart</mat-icon>
+        Download Excel
+      </button>
     </mat-card-header>
+
+    <!-- Search Field -->
+    <div style="padding: 8px 10px; background: #f9f9f9;">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Employee</mat-label>
+        <input matInput 
+          [(ngModel)]="filterValue" 
+          (keyup)="applyFilter($event)" 
+          placeholder="Search any field...">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+    </div>
 
     <div class="mat-elevation-z8">
       <table mat-table [dataSource]="employees" class="full-width-table">
@@ -144,6 +149,17 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
       <mat-paginator #paginator [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons [pageSize]="10"></mat-paginator>
+    </div>
+  </mat-card>
+
+  <!-- No Data Card -->
+  <mat-card class="table-card" *ngIf="employees.data.length === 0">
+    <mat-card-header>
+      <mat-card-title>📋 Employee List</mat-card-title>
+    </mat-card-header>
+    <div class="no-data">
+      <mat-icon>info</mat-icon>
+      <p>No employee data found.</p>
     </div>
   </mat-card>
 </div>

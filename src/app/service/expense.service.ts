@@ -3,8 +3,9 @@
  * Handles all expense-related API operations
  */
 
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
 import { environment } from '../../environment/environment';
 import { ExpenseItem, CreateExpenseRequest, ExpenseLabel } from '../models';
@@ -17,7 +18,10 @@ import { API_ENDPOINTS } from './api-endpoints.const';
 export class ExpenseService extends BaseApiService {
   private readonly baseUrl = `${environment.apiBaseUrl}${API_ENDPOINTS.EXPENSE.GET_ALL}`;
 
-  constructor(protected override http: HttpClient) {
+  constructor(
+    protected override http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     super(http);
   }
 
@@ -25,7 +29,9 @@ export class ExpenseService extends BaseApiService {
    * Get all expenses
    */
   getExpensedetails(): Observable<ExpenseItem[]> {
-    return this.get<ExpenseItem[]>(this.baseUrl);
+    const currentuser = isPlatformBrowser(this.platformId) ? localStorage.getItem('username') || '' : '';
+    const url = `${this.baseUrl}?currentuser=${encodeURIComponent(currentuser)}`;
+    return this.get<ExpenseItem[]>(url);
   }
 
   /**
@@ -33,6 +39,14 @@ export class ExpenseService extends BaseApiService {
    */
   insertexpensedetails(entryData: CreateExpenseRequest | any): Observable<ExpenseItem> {
     return this.post<ExpenseItem>(this.baseUrl, entryData);
+  }
+
+  /**
+   * Update expense details
+   */
+  updateExpense(headerId: number, expenseData: any): Observable<any> {
+    const url = `${this.baseUrl}/${headerId}`;
+    return this.put<any>(url, expenseData);
   }
 
   /**

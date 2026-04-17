@@ -168,7 +168,7 @@ export class FishMaster implements OnInit, OnDestroy, AfterViewInit {
 
     const { name, price, weight } = this.fishForm.value;
     const body: CreateFishRequest = {
-      entryby: 'admin',
+      entryby: localStorage.getItem('username') || 'system',
       fishname: name,
       fishprice: price,
       fishweight: weight

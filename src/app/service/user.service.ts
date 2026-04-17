@@ -3,8 +3,9 @@
  * Handles all user-related API operations
  */
 
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
 import { environment } from '../../environment/environment';
 import { User, CreateUserRequest } from '../models';
@@ -17,7 +18,10 @@ import { API_ENDPOINTS } from './api-endpoints.const';
 export class UserService extends BaseApiService {
   private readonly baseUrl = `${environment.apiBaseUrl}${API_ENDPOINTS.USERS.GET_ALL}`;
 
-  constructor(protected override http: HttpClient) {
+  constructor(
+    protected override http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     super(http);
   }
 
@@ -25,7 +29,9 @@ export class UserService extends BaseApiService {
    * Get all users
    */
   getUserdetails(): Observable<User[]> {
-    return this.get<User[]>(this.baseUrl);
+    const currentuser = isPlatformBrowser(this.platformId) ? localStorage.getItem('username') || 'system' : 'system';
+    const url = `${this.baseUrl}?currentuser=${encodeURIComponent(currentuser)}`;
+    return this.get<User[]>(url);
   }
 
   /**

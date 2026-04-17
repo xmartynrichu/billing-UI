@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
 import { environment } from '../../environment/environment';
 
@@ -11,14 +12,18 @@ import { environment } from '../../environment/environment';
 })
 export class MasterService {
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   insertlabeldetails(data: any): Observable<any> {
     const url = `${environment.apiBaseUrl}/labelmaster`;
     return this.http.post<any>(url, data);
   }
   getlabelmasterdetails(): Observable<any> {
-    const url = `${environment.apiBaseUrl}/labelmaster`;
+    const currentuser = isPlatformBrowser(this.platformId) ? localStorage.getItem('username') || '' : '';
+    const url = `${environment.apiBaseUrl}/labelmaster?currentuser=${encodeURIComponent(currentuser)}`;
     return this.http.get<any>(url);
   }
 

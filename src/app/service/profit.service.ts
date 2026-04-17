@@ -3,8 +3,9 @@
  * Handles all profit report API operations
  */
 
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
 import { environment } from '../../environment/environment';
 import { BaseApiService } from './base-api.service';
@@ -23,7 +24,10 @@ export interface ProfitReport {
 export class ProfitService extends BaseApiService {
   private readonly baseUrl = `${environment.apiBaseUrl}${API_ENDPOINTS.PROFIT.GET_ALL}`;
 
-  constructor(protected override http: HttpClient) {
+  constructor(
+    protected override http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     super(http);
   }
 
@@ -31,7 +35,9 @@ export class ProfitService extends BaseApiService {
    * Get all profit report data
    */
   getProfitReport(): Observable<ProfitReport[]> {
-    return this.get<ProfitReport[]>(this.baseUrl);
+    const currentuser = isPlatformBrowser(this.platformId) ? localStorage.getItem('username') || '' : '';
+    const url = `${this.baseUrl}?currentuser=${encodeURIComponent(currentuser)}`;
+    return this.get<ProfitReport[]>(url);
   }
 
   /**

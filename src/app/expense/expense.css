@@ -49,6 +49,12 @@
   width: 100%;
 }
 
+/* Search Field */
+.search-field {
+  width: 100%;
+  max-width: 400px;
+}
+
 /* Icon Styling */
 mat-form-field mat-icon[matPrefix] {
   margin-right: 8px;
@@ -314,6 +320,33 @@ mat-form-field mat-icon[matPrefix] {
     padding: 5px 4px;
     font-size: 12px;
   }
+}
+
+/* No Data Message */
+.no-data {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+  font-style: italic;
+  color: gray;
+  min-height: 200px;
+}
+
+.no-data mat-icon {
+  font-size: 48px !important;
+  width: 48px !important;
+  height: 48px !important;
+ color: #2196F3 !important;
+  margin-bottom: 16px !important;
+}
+
+.no-data p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
 }
 
 /* Footer Actions */

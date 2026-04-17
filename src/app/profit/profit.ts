@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,13 +9,15 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { ProfitService } from '../service/profit.service';
 import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-profit',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatTableModule, MatPaginatorModule, MatIconModule, MatButtonModule, MatSnackBarModule, MatTooltipModule, MatProgressSpinnerModule],
+  imports: [CommonModule, FormsModule, MatCardModule, MatTableModule, MatPaginatorModule, MatIconModule, MatButtonModule, MatSnackBarModule, MatTooltipModule, MatProgressSpinnerModule, MatFormFieldModule, MatInputModule],
   templateUrl: './profit.html',
   styleUrl: './profit.css',
   changeDetection: ChangeDetectionStrategy.Default
@@ -25,6 +28,7 @@ export class Profit implements OnInit, AfterViewInit {
   loading = true;
   dataLoaded = false;
   displayedColumns = ['date', 'revenue', 'expense', 'profit', 'actions'];
+  filterValue: string = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -35,28 +39,46 @@ export class Profit implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('Profit component initialized');
     this.loadReport();
   }
 
   ngAfterViewInit(): void {
     this.reportData.paginator = this.paginator;
+    
+    // Set up custom filter predicate to search across all columns
+    this.reportData.filterPredicate = (data: any, filter: string) => {
+      const filterLower = filter.toLowerCase().trim();
+      
+      // Search across all relevant fields
+      return (
+        data.date?.toString().toLowerCase().includes(filterLower) ||
+        data.revenue?.toString().includes(filterLower) ||
+        data.expense?.toString().includes(filterLower) ||
+        data.profit?.toString().includes(filterLower)
+      );
+    };
+  }
+
+  applyFilter(event: any): void {
+    // Set the filter value on the dataSource
+    this.reportData.filter = this.filterValue.trim().toLowerCase();
+    
+    // Reset to first page when filter changes
+    if (this.reportData.paginator) {
+      this.reportData.paginator.firstPage();
+    }
   }
 
   loadReport() {
-    console.log('loadReport called - Starting to fetch profit data');
     this.loading = true;
     this.dataLoaded = false;
     this.cdr.markForCheck();
     
     this.profitService.getProfitReport().subscribe({
       next: (data: any[]) => {
-        console.log('Profit data received:', data);
         this.reportData = new MatTableDataSource(data);
         this.loading = false;
         this.dataLoaded = true;
-        console.log('loading flag:', this.loading);
-        console.log('dataLoaded flag:', this.dataLoaded);
         this.cdr.markForCheck();
       },
       error: (error: any) => {
@@ -66,9 +88,7 @@ export class Profit implements OnInit, AfterViewInit {
         this.dataLoaded = false;
         this.cdr.markForCheck();
       },
-      complete: () => {
-        console.log('Profit data load complete');
-      }
+      complete: () => {}
     });
   }
 
@@ -134,10 +154,6 @@ export class Profit implements OnInit, AfterViewInit {
     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
     const day = String(dateObj.getDate()).padStart(2, '0');
     const dateString = `${year}-${month}-${day}`;
-
-    console.log('📧 Original UTC date:', selectedProfit.date);
-    console.log('📧 Converted to LOCAL date:', dateString);
-    console.log('📧 Table displays as:', new Date(selectedProfit.date).toLocaleDateString('en-IN'));
 
     // Send only date - backend will fetch fresh data from database
     const reportPayload = {

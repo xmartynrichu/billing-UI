@@ -6,7 +6,7 @@
   </div>
 
   <!-- Profit Table Card -->
-  <mat-card class="table-card" *ngIf="!loading && dataLoaded">
+  <mat-card class="table-card" *ngIf="!loading && reportData.data.length > 0">
     <mat-card-header>
       <mat-card-title>📈 Profit Report</mat-card-title>
       <button mat-raised-button class="download-btn green-btn" (click)="downloadExcel()" [disabled]="reportData.data.length === 0" matTooltip="Download as Excel">
@@ -14,6 +14,18 @@
         Download Excel
       </button>
     </mat-card-header>
+
+    <!-- Search Field -->
+    <div style="padding: 8px 10px; background: #f9f9f9;">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Report</mat-label>
+        <input matInput 
+          [(ngModel)]="filterValue" 
+          (keyup)="applyFilter($event)" 
+          placeholder="Search any field...">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+    </div>
 
     <div class="mat-elevation-z8">
       <table mat-table [dataSource]="reportData" class="full-width-table">
@@ -59,12 +71,12 @@
   </mat-card>
 
   <!-- No Data Message -->
-  <mat-card class="table-card" *ngIf="!loading && !dataLoaded">
+  <mat-card class="table-card" *ngIf="!loading && reportData.data.length === 0">
     <mat-card-header>
       <mat-card-title>📈 Profit Report</mat-card-title>
     </mat-card-header>
     <div class="no-data">
-      <mat-icon style="font-size: 48px; color: #999; margin-bottom: 16px;">info</mat-icon>
+      <mat-icon>info</mat-icon>
       <p>No profit data found.</p>
     </div>
   </mat-card>

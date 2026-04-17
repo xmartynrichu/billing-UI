@@ -217,14 +217,28 @@
 }
 
 .no-data {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   padding: 40px 20px;
   text-align: center;
   color: #999;
+  min-height: 200px;
+}
+
+.no-data mat-icon {
+  font-size: 48px !important;
+  width: 48px !important;
+  height: 48px !important;
+  color: #2196F3 !important;
+  margin-bottom: 16px !important;
 }
 
 .no-data p {
-  margin-top: 16px;
-  font-size: 16px;
+  margin: 0;
+  font-size: 14px;
+  color: #666;
 }
 
 /* Responsive Design */

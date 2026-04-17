@@ -14,6 +14,7 @@
           placeholder="Enter username"
           name="username"
           [(ngModel)]="username"
+          autocomplete="off"
           required
         />
       </div>
@@ -25,6 +26,7 @@
           placeholder="Enter password"
           name="password"
           [(ngModel)]="password"
+          autocomplete="off"
           required
         />
       </div>
@@ -42,78 +44,101 @@
   </div>
 
   <!-- Sign Up Modal -->
-  <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div *ngIf="showModal" class="modal-overlay">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Create New Account</h3>
         <button type="button" class="close-btn" (click)="closeModal()">×</button>
       </div>
 
-      <form (ngSubmit)="signup()" class="signup-form">
-        <div class="input-group">
-          <label>Full Name *</label>
-          <input
-            type="text"
+      <form (ngSubmit)="signup()" class="signup-form" style="padding: 16px;">
+        
+        <!-- Full Name Field -->
+        <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 16px;">
+          <mat-label>Full Name *</mat-label>
+          <input matInput 
             placeholder="Enter your full name"
+            [(ngModel)]="newUser.user_name" 
             name="user_name"
-            [(ngModel)]="newUser.user_name"
-            required
-          />
-        </div>
+            autocomplete="off"
+            required>
+          <mat-icon matPrefix>person</mat-icon>
+        </mat-form-field>
 
-        <div class="input-group">
-          <label>Username *</label>
-          <input
-            type="text"
+        <!-- Username Field -->
+        <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 16px;">
+          <mat-label>Username *</mat-label>
+          <input matInput 
             placeholder="Choose a username"
+            [(ngModel)]="newUser.user_id" 
             name="user_id"
-            [(ngModel)]="newUser.user_id"
-            required
-          />
-        </div>
+            autocomplete="off"
+            required>
+          <mat-icon matPrefix>badge</mat-icon>
+        </mat-form-field>
 
-        <div class="input-group">
-          <label>Password *</label>
-          <input
+        <!-- Password Field -->
+        <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 16px;">
+          <mat-label>Password *</mat-label>
+          <input matInput 
             type="password"
             placeholder="Enter a password"
+            [(ngModel)]="newUser.pass_wrd" 
             name="pass_wrd"
-            [(ngModel)]="newUser.pass_wrd"
-            required
-          />
-        </div>
+            autocomplete="off"
+            required>
+          <mat-icon matPrefix>lock</mat-icon>
+        </mat-form-field>
 
-        <div class="input-group">
-          <label>Email</label>
-          <input
+        <!-- Email Field -->
+        <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 16px;">
+          <mat-label>Email</mat-label>
+          <input matInput 
             type="email"
             placeholder="Enter your email"
+            [(ngModel)]="newUser.email_id" 
             name="email_id"
-            [(ngModel)]="newUser.email_id"
-          />
-        </div>
+            autocomplete="off">
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error *ngIf="newUser.email_id && !isValidEmail(newUser.email_id)">
+            Please enter a valid email address
+          </mat-error>
+        </mat-form-field>
 
-        <div class="input-group">
-          <label>Mobile Number</label>
-          <input
-            type="tel"
-            placeholder="Enter your mobile number"
+        <!-- Mobile Number Field -->
+        <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 16px;">
+          <mat-label>Mobile Number</mat-label>
+          <input matInput 
+            placeholder="Enter 10-digit mobile number"
+            [(ngModel)]="newUser.mobile_number" 
             name="mobile_number"
-            [(ngModel)]="newUser.mobile_number"
-          />
-        </div>
+            maxlength="10"
+            autocomplete="off">
+          <mat-icon matPrefix>phone</mat-icon>
+          <mat-error *ngIf="newUser.mobile_number && !isValidMobile(newUser.mobile_number)">
+            Mobile number must be exactly 10 digits
+          </mat-error>
+        </mat-form-field>
 
-        <div class="input-group">
-          <label>Date of Birth</label>
-          <input
-            type="date"
+        <!-- Date of Birth Field -->
+        <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 16px;">
+          <mat-label>Date of Birth</mat-label>
+          <input matInput 
+            [matDatepicker]="dobPicker"
+            [matDatepickerFilter]="dateFilter"
+            [(ngModel)]="newUser.dateofbirth" 
             name="dateofbirth"
-            [(ngModel)]="newUser.dateofbirth"
-          />
-        </div>
+            autocomplete="off">
+          <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
+          <mat-datepicker #dobPicker></mat-datepicker>
+          <mat-icon matPrefix>cake</mat-icon>
+          <mat-error *ngIf="newUser.dateofbirth && !isValidDOB(newUser.dateofbirth)">
+            Date of birth cannot be in the future
+          </mat-error>
+        </mat-form-field>
 
-        <button type="submit" class="signup-btn">Create Account</button>
-        <button type="button" class="cancel-btn" (click)="closeModal()">Cancel</button>
+        <button mat-raised-button type="submit" class="signup-btn" style="width: 100%; margin-bottom: 8px; background-color: #4caf50; color: white;">Create Account</button>
+        <button mat-raised-button type="button" class="cancel-btn" (click)="closeModal()" style="width: 100%; background-color: #f44336; color: white;">Cancel</button>
       </form>
     </div>
   </div>

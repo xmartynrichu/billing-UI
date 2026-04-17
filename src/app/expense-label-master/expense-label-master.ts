@@ -121,7 +121,7 @@ export class ExpenseLabelMaster implements OnInit, AfterViewInit {
     const body = {
       label_name: this.labelForm.value.label_name,
       amount: this.labelForm.value.amount,
-      entryby: 'admin'
+      entryby: localStorage.getItem('username') || 'system'
     };
 
     this.masterservice.insertlabeldetails(body).subscribe({
@@ -169,7 +169,6 @@ export class ExpenseLabelMaster implements OnInit, AfterViewInit {
     this.masterservice.getlabelmasterdetails().subscribe({
       next: (data: any) => {
         this.dataSource.data = data;
-        console.log(this.dataSource.data);
       }
     });
   }
